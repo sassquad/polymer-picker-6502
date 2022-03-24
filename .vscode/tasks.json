@@ -1,0 +1,90 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "options":
+        {
+            "windows": {
+                "shell":
+                {
+                    "args": ["/C"],
+                    "executable": "cmd.exe"
+                }
+            }
+        },
+    "tasks": [
+        {
+            "label": "PP6502.ssd",
+            "type": "shell",
+            "command": "make",
+            "osx": {
+                "command": ". ./build.sh"
+            },
+            // change the command argument to match where you have placed
+            // your emulator executable.
+            // amend the args argument to match that of your emulator settings.
+            "windows": {
+                "command": "C:/Code/beebasm/beebasm.exe",
+                "args": [
+                    "-i",
+                    "Polymer-Picker-6502.asm",
+                    "-do",
+                    "PP6502.ssd",
+                    "-opt",
+                    "3",
+                    "-title",
+                    "PP6502"
+                ]
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "problemMatcher": {
+                "owner": "6502",
+                "fileLocation": [
+                    "relative",
+                    "${workspaceRoot}"
+                ],
+                "pattern": {
+                    "regexp": "^(.*):(\\d+):\\s+(warning|error):\\s+(.*)$",
+                    "file": 1,
+                    "line": 2,
+                    "severity": 3,
+                    "message": 4
+                }
+            }
+        },
+        {
+            "label": "Test In Emulator",
+            "type": "shell",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "osx": {
+                "command": ". ./testinb2.sh"
+            },
+            // change the command argument to match where you have placed
+            // your emulator executable.
+            // amend the args argument to match that of your emulator settings.
+            "windows": {
+                "command": "C:/Code/b2/B2.exe",
+                "args": [
+                    "-0",
+                    "PP6502.ssd",
+                    "-b"
+                ]
+            },
+            "problemMatcher": []
+        }
+    ]
+}
