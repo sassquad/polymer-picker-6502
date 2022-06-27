@@ -2,27 +2,28 @@ REM Polymer picker loader
 HIMEM=&2C00
 MODE7:VDU23;8202;0;0;0;
 PROCcntr(1,6,1,"Polymer Picker")
-PROCcntr(0,6,2,"by Stephen Scott (c) 2021")
+PROCcntr(0,6,2,"by Stephen Scott (c) 2021-22")
 PROCcntr(0,6,3,"Thanks to ChrisB, jms2 and lurkio")
-PRINT'"  The oceans are full of plastic junk.   It is your task to clean them up! Swim"
-PRINT " and collect the red junk items before   the local sealife eats it and dies."
+PRINT'"  The oceans are full of junk. Try and   help clean them up! Swim and collect"
+PRINT " it all, before the local sealife eats   it and dies!"
 PRINT'"  You have a limited air supply, which   decreases gradually as you swim. If"
 PRINT " you swim faster, this will decrease     more quickly."
-PRINT'"  Watch out for the shark. If it touches you, then you'll be badly hurt.":*FX15,0
-PRINTTAB(8,23);CHR$129;CHR$(157);CHR$135;"    PRESS A KEY      ";CHR$156;:VDU28,0,22,39,6
-A=GET:CLS:*FX15,0
-PRINT'"  Also, take care not to touch any pink  coral or pufferfish, as this will not"
-PRINT " only hurt you, but your bleeding will   attract the shark more quickly to you!"
+PRINT'"  You have one chance to refill your     air, by floating underneath your"
+PRINT " boat, but only when you have 50% or     less. Use it wisely!":*FX15,0
+PRINTTAB(4,23);CHR$129;CHR$(157);CHR$135;"PRESS SPACEBAR TO CONTINUE  ";CHR$156;:VDU28,0,22,39,6
+REPEATUNTILGET=32:CLS:*FX15,0
+PRINT'"  Try to avoid the shark, which will     come slowly towards you initially, but"
+PRINT " will be more persistent if it injures   you!"
 PRINT'"  Once you have collected all the junk   you will proceed to the next bay."
 PRINT'"  Controls:     Z - swim left"
 PRINT "                X - swim right"
 PRINT "              */"" - swim up"
 PRINT "                ? - swim down"
 PRINT "     Return/Enter - swim faster"
-A=GET:VDU26,12
+REPEATUNTILGET=32:VDU26,12
 PROCchars:PROCenv
 PROCassemble(&900,2):W%=plotshape:R%=getaddr:Q%=check
-MODE2:VDU23;8202;0;0;0;:PAGE=&1100:HIMEM=&2C00:CHAIN"Poly2"
+PAGE=&1100:HIMEM=&2C00:CHAIN"Poly2"
 END
 DEFPROCcntr(D%,C%,Y%,msg$)
 X%=(40-LEN(msg$))/2:msg$=CHR$(128+C%)+msg$
@@ -39,6 +40,14 @@ REM crab
 VDU23,228,165,66,66,24,102,255,66,129
 REM shrimp
 VDU23,229,5,5,0,27,127,224,137,37
+REM boat
+VDU23,230,0,0,0,0,0,128,240,126
+VDU23,231,0,3,15,24,48,112,240,15
+VDU23,232,0,252,254,66,66,130,130,254
+VDU23,233,127,39,57,62,31,31,15,15
+VDU23,234,224,255,255,63,195,252,255,255
+VDU23,235,126,128,255,255,255,255,0,255
+VDU23,236,240,0,240,240,240,248,24,248
 REM fish
 VDU23,240,8,24,61,223,127,61,24,8
 VDU23,241,16,24,188,251,254,188,24,8
@@ -55,6 +64,8 @@ REM Bubbles
 ENVELOPE3,5,15,0,0,72,0,0,-6,127,0,-9,0,126
 REM Breathing
 ENVELOPE4,129,0,-10,-1,1,0,2,6,-1,0,-1,126,74
+REM Replenish air
+ENVELOPE5,1,0,0,0,50,25,25,127,-1,-1,-1,126,90
 ENDPROC
 DEFPROCassemble(origin,maxpass)
 P%=&70
@@ -87,8 +98,8 @@ EQUD 0:EQUW 0
 EQUD 0:EQUW 0
 ]
 shapes=&2C00
-PRINT"Loading sprites at &";~shapes
-FOR I%=0TO5:READfilename$:PRINT"Sprite ";filename$
+REM PRINT"Loading sprites at &";~shapes
+FOR I%=0TO5:READfilename$:REM PRINT"Sprite ";filename$
 OSCLI("LOAD "+filename$+" "+STR$~shapes)
 I%?shapeloaddr=shapes AND&FF
 I%?shapehiaddr=shapes DIV256
@@ -96,7 +107,7 @@ READ I%?shapesize,I%?shapedepth
 shapes=shapes+I%?shapedepth*I%?shapesize
 NEXT
 DATA LDIVER,12,16,RDIVER,12,16,LFISH,4,8,RFISH,4,8,LSHK,16,16,RSHK,16,16
-PRINT"Sprites loaded, next free byte=&";~shapes
+REM PRINT"Sprites loaded, next free byte=&";~shapes
 FOR pass=0 TO maxpass STEP maxpass
 P%=origin
 [OPT pass
@@ -157,5 +168,5 @@ DEY:BPL checkloop
 STY &AB2:RTS
 ]
 NEXTpass
-PRINT"Press space to load game":REPEAT UNTIL INKEY-99
+REM PRINT"Press space to load game":REPEAT UNTIL INKEY-99
 ENDPROC
