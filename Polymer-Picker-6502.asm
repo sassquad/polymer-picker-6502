@@ -1,6 +1,5 @@
 PUTBASIC "src/POLY1.bas","POLY1"
 PUTBASIC "src/POLY2.bas","POLY2"
-PUTBASIC "src/POLY2a.bas","POLY2a"
 PUTFILE "src/LFISH.bin","LFISH",0
 PUTFILE "src/RFISH.bin","RFISH",0
 PUTFILE "src/LSHK.bin","LSHK",0
