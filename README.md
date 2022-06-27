@@ -5,6 +5,8 @@ A BBC Basic and Assembler version of the Polymer Picker game.
 
 This is a work in progress game, which was started in September 2021. Development has been sporadic. Previous versions can be downloaded from the [game's dedicated Stardot thread](https://stardot.org.uk/forums/viewtopic.php?f=53&t=23615).
 
+<img src="polymer-picker-1.png" alt="Image of Polymer Picker" width="450" />
+
 ## How to build from source
 
 Although the disc image is included here, there are files included to help you build your own copy of the game. You will require the following:
