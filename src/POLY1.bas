@@ -1,6 +1,6 @@
 REM Polymer picker loader
-HIMEM=&2C00
 MODE7:VDU23;8202;0;0;0;
+HIMEM=&2BFF
 PROCcntr(1,6,1,"Polymer Picker")
 PROCcntr(0,6,2,"by Stephen Scott (c) 2021-22")
 PROCcntr(0,6,3,"Thanks to ChrisB, jms2 and lurkio")
@@ -20,10 +20,13 @@ PRINT "                X - swim right"
 PRINT "              */"" - swim up"
 PRINT "                ? - swim down"
 PRINT "     Return/Enter - swim faster"
+PRINT "              S/Q - Sound on/off"
+PRINT "              P/U - Pause/unpause"
 REPEATUNTILGET=32:VDU26,12
 PROCchars:PROCenv
-PROCassemble(&900,2):W%=plotshape:R%=getaddr:Q%=check
-PAGE=&1100:HIMEM=&2C00:CHAIN"Poly2"
+FOR T%=&900 TO &AFF STEP4:!T%=0:NEXT
+PROCassemble:W%=plotshape:R%=getaddr:Q%=check
+PAGE=&1100:HIMEM=&2BFF:CHAIN"Poly2"
 END
 DEFPROCcntr(D%,C%,Y%,msg$)
 X%=(40-LEN(msg$))/2:msg$=CHR$(128+C%)+msg$
@@ -67,49 +70,36 @@ ENVELOPE4,129,0,-10,-1,1,0,2,6,-1,0,-1,126,74
 REM Replenish air
 ENVELOPE5,1,0,0,0,50,25,25,127,-1,-1,-1,126,90
 ENDPROC
-DEFPROCassemble(origin,maxpass)
+DEFPROCassemble
 P%=&70
 [OPT 0
-.addr
-EQUW 0\&70-71
-.top
-EQUW &3000\&72-73
-.rowcounter
-EQUB 0\&74
-.counter
-EQUB 0\&75
-.temp
-EQUB 0\&76
-.temp1
-EQUB 0\&77
-.depth
-EQUB 0\&78
-.shape
-EQUW 0\&79-7A
-.offset
-EQUB 0\&7B
-.shapeloaddr
-EQUD 0:EQUW 0
-.shapehiaddr
-EQUD 0:EQUW 0
-.shapesize
-EQUD 0:EQUW 0
-.shapedepth
-EQUD 0:EQUW 0
+.addr:EQUW 0\&70-71
+.top:EQUW &3000\&72-73
+.rowcounter:EQUB 0\&74
+.counter:EQUB 0\&75
+.temp:EQUB 0\&76
+.temp1:EQUB 0\&77
+.depth:EQUB 0\&78
+.shape:EQUW 0\&79-7A
+.offset:EQUB 0\&7B
+.shapeloaddr:EQUD 0:EQUW 0:EQUW 0
+.shapehiaddr:EQUD 0:EQUW 0:EQUW 0
+.shapesize:EQUD 0:EQUW 0:EQUW 0
+.shapedepth:EQUD 0:EQUW 0:EQUW 0
 ]
-shapes=&2C00
+shapes=&2BFF
 REM PRINT"Loading sprites at &";~shapes
-FOR I%=0TO5:READfilename$:REM PRINT"Sprite ";filename$
+FORI%=0TO7:READ filename$:REM PRINT"Sprite ";filename$
 OSCLI("LOAD "+filename$+" "+STR$~shapes)
 I%?shapeloaddr=shapes AND&FF
 I%?shapehiaddr=shapes DIV256
 READ I%?shapesize,I%?shapedepth
 shapes=shapes+I%?shapedepth*I%?shapesize
 NEXT
-DATA LDIVER,12,16,RDIVER,12,16,LFISH,4,8,RFISH,4,8,LSHK,16,16,RSHK,16,16
+DATA LDIVER,12,16,RDIVER,12,16,LFISH,4,8,RFISH,4,8,LSHK,16,16,RSHK,16,16,DLFISH,4,8,DRFISH,4,8
 REM PRINT"Sprites loaded, next free byte=&";~shapes
-FOR pass=0 TO maxpass STEP maxpass
-P%=origin
+FOR pass=0 TO 2 STEP 2
+P%=&900
 [OPT pass
 .getaddr
 LDA #&00:STA addr+1:TYA:EOR #&FF
