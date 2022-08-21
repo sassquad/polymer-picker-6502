@@ -1,3 +1,4 @@
+PUTBASIC "src/POLYSCR.bas","POLYSCR"
 PUTBASIC "src/POLY1.bas","POLY1"
 PUTBASIC "src/POLY2.bas","POLY2"
 PUTFILE "src/LFISH.bin","LFISH",0
@@ -8,4 +9,6 @@ PUTFILE "src/LSHK.bin","LSHK",0
 PUTFILE "src/RSHK.bin","RSHK",0
 PUTFILE "src/LDIVER.bin","LDIVER",0
 PUTFILE "src/RDIVER.bin","RDIVER",0
+PUTFILE "src/PPBY.bin","PPBY",0
+PUTFILE "src/PPSCR.bin","PPSCR",0
 PUTTEXT "src/BOOT.txt", "!BOOT",&FFFF
