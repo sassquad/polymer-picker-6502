@@ -3,6 +3,16 @@ A BBC Basic and Assembler version of the Polymer Picker game.
 
 ## About the game
 
+Your local coastline has become polluted with discarded plastic, which is harming the aquatic wildlife. Dive in, and collect the rubbish, before the fish consume it and die.
+
+Each level contains 8 items to collect. You then proceed to the next level. The fish are initially harmless, but later levels require you to avoid the fish if you can, or they may injure you. Then of course, there's the sharks to contend with.
+
+As you progress, you have the ability to swim faster. This will consume more oxygen, however. When your airtank reaches about 50%, a spare tank will appear underneath your boat. Grab it to replenish your air. However, you only have one refill per level.
+
+Cash is earned for each item of plastic collected. At the end of a level, a bonus is awarded for each fish that is left.
+
+If you run out of air, or all the fish die, then it's game over.
+
 This is a work in progress game, which was started in September 2021. Development has been sporadic. Previous versions can be downloaded from the [game's dedicated Stardot thread](https://stardot.org.uk/forums/viewtopic.php?f=53&t=23615).
 
 <img src="polymer-picker-1.png" alt="Image of Polymer Picker" width="450" />
@@ -27,14 +37,19 @@ VS Code's Tasks feature is employed to good effect here, by allowing a 'build' a
 The `Polymer-Picker-6502.asm` file consists of the following:
 
 ```
+PUTBASIC "src/POLYSCR.bas","POLYSCR"
 PUTBASIC "src/POLY1.bas","POLY1"
 PUTBASIC "src/POLY2.bas","POLY2"
 PUTFILE "src/LFISH.bin","LFISH",0
 PUTFILE "src/RFISH.bin","RFISH",0
+PUTFILE "src/DLFISH.bin","DLFISH",0
+PUTFILE "src/DRFISH.bin","DRFISH",0
 PUTFILE "src/LSHK.bin","LSHK",0
 PUTFILE "src/RSHK.bin","RSHK",0
 PUTFILE "src/LDIVER.bin","LDIVER",0
 PUTFILE "src/RDIVER.bin","RDIVER",0
+PUTFILE "src/PPBY.bin","PPBY",0
+PUTFILE "src/PPSCR.bin","PPSCR",0
 PUTTEXT "src/BOOT.txt", "!BOOT",&FFFF
 ```
 
@@ -52,14 +67,13 @@ The bootfile itself is fairly standard:
 
 ```
 *BASIC
-PAGE=&1100
 *FX21
-CLOSE#0:CHAIN "POLY1"
+CLOSE#0:CHAIN "POLYSCR"
 ```
 
 This boot content appears on a lot of disc images within the BBC Micro Game Archive's disc images, and basically ensures the computer, or emulator is all set up correctly, and has no 'open' files to corrupt disc images, prior to running the disc image. At least, that's what I believe.
 
-I have not yet performed this build on the Windows platform, so I will be performing some further amends if the `tasks.json` file is not set up correctly.
+I have performed this build on the Windows platform, the `tasks.json` file requires minor tweaking concerning where you put the beebasm.exe and your emulator. Other than this, the tasks work well.
 
 ## Acknowledgements
 
