@@ -4,24 +4,30 @@ HIMEM=&2BFF
 PROCcntr(1,6,1,"Polymer Picker")
 PROCcntr(0,6,2,"by Stephen Scott (c) 2021-22")
 PROCcntr(0,6,3,"Thanks to ChrisB, jms2 and lurkio")
-PRINT'"  The oceans are full of junk. Try and   help clean them up! Swim and collect"
-PRINT " it all, before the local sealife eats   it and dies!"
-PRINT'"  You have a limited air supply, which   decreases gradually as you swim. If"
-PRINT " you swim faster, this will decrease     more quickly."
-PRINT'"  You have one chance to refill your     air, by floating underneath your"
-PRINT " boat, but only when you have 50% or     less. Use it wisely!":*FX15,0
+PRINT'" Your local tropical bay is polluted"
+PRINT "with discarded plastic. Your job is to"
+PRINT "try and clean it up. Swim and collect"
+PRINT "the junk, before the local sealife eats"
+PRINT "it and dies!"
+PRINT'" You have a limited air supply, which"
+PRINT "decreases more quickly if you swim"
+PRINT "faster. A spare tank will appear under"
+PRINT "your boat when your remaining air"
+PRINT "reaches 50%. Use it wisely!":*FX15,0
 PRINTTAB(4,23);CHR$129;CHR$(157);CHR$135;"PRESS SPACEBAR TO CONTINUE  ";CHR$156;:VDU28,0,22,39,6
 REPEATUNTILGET=32:CLS:*FX15,0
-PRINT'"  Try to avoid the shark, which will     come slowly towards you initially, but"
-PRINT " will be more persistent if it injures   you!"
-PRINT'"  Once you have collected all the junk   you will proceed to the next bay."
-PRINT'"  Controls:     Z - swim left"
-PRINT "                X - swim right"
-PRINT "              */"" - swim up"
-PRINT "                ? - swim down"
-PRINT "     Return/Enter - swim faster"
-PRINT "              S/Q - Sound on/off"
-PRINT "              P/U - Pause/unpause"
+PRINT'" Try to avoid the shark, which will"
+PRINT "come slowly towards you initially, but"
+PRINT "don't let him bite you!"
+PRINT'" Once you have collected all the junk"
+PRINT "you will proceed to the next bay."
+PRINT'" Controls:     Z - swim left"
+PRINT "               X - swim right"
+PRINT "             */"" - swim up"
+PRINT "               ? - swim down"
+PRINT "    Return/Enter - swim faster"
+PRINT "             S/Q - Sound on/off"
+PRINT "             P/U - Pause/unpause"
 REPEATUNTILGET=32:VDU26,12
 PROCchars:PROCenv
 FOR T%=&900 TO &AFF STEP4:!T%=0:NEXT
@@ -40,20 +46,24 @@ VDU23,226,80,74,42,34,36,141,217,219
 REM coral
 VDU23,227,146,84,84,40,170,170,108,16
 REM crab
-VDU23,228,165,66,66,24,102,255,66,129
+VDU23,228,165,66,66,24,102,-1,66,129
 REM shrimp
 VDU23,229,5,5,0,27,127,224,137,37
 REM boat
 VDU23,230,0,0,0,0,0,128,240,126
 VDU23,231,0,3,15,24,48,112,240,15
-VDU23,232,0,252,254,66,66,130,130,254
+VDU23,232,0,-4,-2,66,66,130,130,-2
 VDU23,233,127,39,57,62,31,31,15,15
-VDU23,234,224,255,255,63,195,252,255,255
-VDU23,235,126,128,255,255,255,255,0,255
-VDU23,236,240,0,240,240,240,248,24,248
+VDU23,234,224,-1,-1,63,195,-4,-1,-1
+VDU23,235,126,128,-1,-1,-1,-1,0,-1
+VDU23,236,240,0,240,240,240,-8,24,-8
+REM oxygen tank
+VDU23,237,0,0,120,-3,-1,-4,120,0
+REM heart
+VDU23,238,108,-2,-2,-2,-2,124,56,16
 REM fish
 VDU23,240,8,24,61,223,127,61,24,8
-VDU23,241,16,24,188,251,254,188,24,8
+VDU23,241,16,24,188,-5,-2,188,24,8
 VDU23,250,0,126,126,126,126,126,126,0
 VDU23,254,0,0,8,32,4,16,0,0
 VDU23,255,1,0,32,8,0,64,0,1
