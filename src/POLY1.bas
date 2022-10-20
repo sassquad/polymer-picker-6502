@@ -1,4 +1,7 @@
-REM Polymer picker loader
+REM Polymer Picker loader
+REM by Stephen Scott (c) 2021-22
+REM Thanks to ChrisB, jms2 and lurkio
+REM Hi to the Stardot community
 MODE7:VDU23;8202;0;0;0;
 HIMEM=&2BFF
 PROCcntr(1,6,1,"Polymer Picker")
@@ -9,18 +12,29 @@ PRINT "with discarded plastic. Your job is to"
 PRINT "try and clean it up. Swim and collect"
 PRINT "the junk, before the local sealife eats"
 PRINT "it and dies!"
+PRINT'" To collect an item, move until your"
+PRINT "hand is touching it. The item will then"
+PRINT "be collected. All items are white"
+PRINT "coloured."
+VDU31,4,23,129,157,135:PRINT;"PRESS SPACEBAR TO CONTINUE  ";:VDU156,28,0,22,39,6
+*FX15
+REPEATUNTILGET=32:VDU12
 PRINT'" You have a limited air supply, which"
 PRINT "decreases more quickly if you swim"
 PRINT "faster. A spare tank will appear under"
 PRINT "your boat when your remaining air"
-PRINT "reaches 50%. Use it wisely!":*FX15,0
-PRINTTAB(4,23);CHR$129;CHR$(157);CHR$135;"PRESS SPACEBAR TO CONTINUE  ";CHR$156;:VDU28,0,22,39,6
-REPEATUNTILGET=32:CLS:*FX15,0
+PRINT "reaches 50%. Use it wisely!"
 PRINT'" Try to avoid the shark, which will"
 PRINT "come slowly towards you initially, but"
 PRINT "don't let him bite you!"
+*FX15
+REPEATUNTILGET=32:VDU12
 PRINT'" Once you have collected all the junk"
 PRINT "you will proceed to the next bay."
+PRINT'" In later levels, you will encounter"
+PRINT "more harmful fish, and later on, both"
+PRINT "the shark and the harmful fish to"
+PRINT "contend with. Nature is cruel!"
 PRINT'" Controls:     Z - swim left"
 PRINT "               X - swim right"
 PRINT "             */"" - swim up"
@@ -28,16 +42,17 @@ PRINT "               ? - swim down"
 PRINT "    Return/Enter - swim faster"
 PRINT "             S/Q - Sound on/off"
 PRINT "             P/U - Pause/unpause"
+*FX15
 REPEATUNTILGET=32:VDU26,12
 PROCchars:PROCenv
-FOR T%=&900 TO &AFF STEP4:!T%=0:NEXT
+FORT%=&900 TO &AFF STEP4:!T%=0:NEXT
 PROCassemble:W%=plotshape:R%=getaddr:Q%=check
 PAGE=&1100:HIMEM=&2BFF:CHAIN"Poly2"
 END
 DEFPROCcntr(D%,C%,Y%,msg$)
 X%=(40-LEN(msg$))/2:msg$=CHR$(128+C%)+msg$
-IFD%=1 FORN%=0TO1:PRINTTAB(X%-2,Y%+N%)CHR$141msg$:NEXT:ENDPROC
-PRINTTAB(X%-1,Y%+N%)msg$:ENDPROC
+IFD%=1 FORN%=0TO1:VDU31,X%-2,Y%+N%,141:PRINT;msg$:NEXT:ENDPROC
+VDU31,X%-1,Y%+N%:PRINT;msg$:ENDPROC
 DEFPROCchars
 REM sea grass
 VDU23,224,202,106,106,106,110,126,126,60
