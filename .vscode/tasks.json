@@ -24,7 +24,7 @@
             // your emulator executable.
             // amend the args argument to match that of your emulator settings.
             "windows": {
-                "command": "C:/www/polymer-picker-6502/beebasm.exe",
+                "command": "C:/beebasm/beebasm.exe",
                 "args": [
                     "-i",
                     "Polymer-Picker-6502.asm",
