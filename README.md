@@ -40,6 +40,7 @@ The `Polymer-Picker-6502.asm` file consists of the following:
 PUTBASIC "src/POLYSCR.bas","POLYSCR"
 PUTBASIC "src/POLY1.bas","POLY1"
 PUTBASIC "src/POLY2.bas","POLY2"
+PUTBASIC "src/POLY3.bas","POLY3"
 PUTFILE "src/LFISH.bin","LFISH",0
 PUTFILE "src/RFISH.bin","RFISH",0
 PUTFILE "src/DLFISH.bin","DLFISH",0
@@ -53,9 +54,9 @@ PUTFILE "src/PPSCR.bin","PPSCR",0
 PUTTEXT "src/BOOT.txt", "!BOOT",&FFFF
 ```
 
-This takes the files within the `src` folder, and outputs them in the correct format, prior to building the disc image. In a major change from the BASIC version, sprite files are present. These are loaded into memory by `POLY1`, after the sprite handling routines have been assembled. `POLY2` contains all the game code, which uses various CALLs to the sprite handlers to display the graphics.
+This takes the files within the `src` folder, and outputs them in the correct format, prior to building the disc image. In a major change from the BASIC version, sprite files are present. Once the instructions are displayed within `POLY1`, these sprites are loaded into memory by `POLY2`, after the sprite handling routines have been assembled. `POLY3` contains all the game code, which uses various CALLs to the sprite handlers to display the graphics.
 
-The invocation of the bootfile, to make the disc autorun, was until recently, the missing element from making this disc image complete. This is due to BeebAsm's normal staple being the building of 6502 code files, invoked via `*RUN`. This approach doesn't work with BASIC files, as these are normally run with the `CHAIN` command, so it required a bit more Googling to find the correct way to build the bootfile for the game. 
+The invocation of the bootfile, to make the disc autorun, was initially the missing element from making this disc image complete. This is due to BeebAsm's normal staple being the building of 6502 code files, invoked via `*RUN`. This approach doesn't work with BASIC files, as these are normally run with the `CHAIN` command, so it required a bit more Googling to find the correct way to build the bootfile for the game. 
 
 Essentially, the `beebasm` call includes the `-opt 3` flag, that enables the disc image to be executable. The following line:
 
@@ -81,9 +82,10 @@ As per my other games, some of the work here was only possible, thanks to the ef
 
 The following people within the Stardot community were very helpful in my endeavours to get this version of the game to fruition. Check out the [game's dedicated Stardot thread](https://stardot.org.uk/forums/viewtopic.php?f=53&t=23615) for details of the game's evolution.
 
-* jms2 - for huge efforts in providing the assembler routines (taken from Jonathan Griffith's respected book Creative Assembler for the BBC Micro), and the intial sprite creations.
+* jms2 - for huge efforts in providing the assembler routines (taken from Jonathan Griffith's respected book Creative Assembler for the BBC Micro), the intial sprite creations, and assistance with user definable keys.
 * ChrisB - for helping out in issues of collision detection, in some of the earlier editions of the game
 * lurkio - for some essential debugging, particularly with random seeding.
+* TonyLobster - for some essential debugging, particularly with random seeding, and assistance in debugging of the user definable keyboard routine.
 
 Special mention to colinhoard, fizzgog and Richard Toohey for your comments on the game.
 
