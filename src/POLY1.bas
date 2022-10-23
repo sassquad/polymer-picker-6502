@@ -1,58 +1,92 @@
 REM Polymer Picker loader
 REM by Stephen Scott (c) 2021-22
-REM Thanks to ChrisB, jms2 and lurkio
+REM Thanks to ChrisB, jms2, lurkio and TonyLobster
 REM Hi to the Stardot community
 MODE7:VDU23;8202;0;0;0;
 HIMEM=&2BFF
+PROCinit:PROCchars
+PROCenv:PROCinstruct
+REPEAT
+A$=GET$
+UNTIL A$=" " OR A$="R"
+IF A$=" " THEN VDU26,12
+IF A$="R" THEN PROCredefine
+REM Write key definitions into &100
+FOR X%=0 TO 4
+X%?&100=k%(X%)
+NEXT:VDU26,12
+PAGE=&1100:HIMEM=&2BFF:CHAIN"Poly2"
+END
+DEFPROCinstruct
 PROCcntr(1,6,1,"Polymer Picker")
-PROCcntr(0,6,2,"by Stephen Scott (c) 2021-22")
-PROCcntr(0,6,3,"Thanks to ChrisB, jms2 and lurkio")
-PRINT'" Your local tropical bay is polluted"
+PROCcntr(0,6,1,"by Stephen Scott (c) 2021-22")
+PROCcntr(0,6,2,"Thanks to ChrisB, jms2, lurkio,")
+PROCcntr(0,6,3,"TonyLobster and all at Stardot")
+PRINT''" Your local tropical bay is polluted"
 PRINT "with discarded plastic. Your job is to"
 PRINT "try and clean it up. Swim and collect"
 PRINT "the junk, before the local sealife eats"
 PRINT "it and dies!"
-PRINT'" To collect an item, move until your"
+PRINT''" To collect an item, move until your"
 PRINT "hand is touching it. The item will then"
 PRINT "be collected. All items are white"
 PRINT "coloured."
-VDU31,4,23,129,157,135:PRINT;"PRESS SPACEBAR TO CONTINUE  ";:VDU156,28,0,22,39,6
+VDU31,4,22,129,157,135:PRINT;"PRESS SPACEBAR TO CONTINUE  ";:VDU156,28,0,21,39,6
 *FX15
 REPEATUNTILGET=32:VDU12
-PRINT'" You have a limited air supply, which"
+PRINT''" You have a limited air supply, which"
 PRINT "decreases more quickly if you swim"
 PRINT "faster. A spare tank will appear under"
 PRINT "your boat when your remaining air"
 PRINT "reaches 50%. Use it wisely!"
-PRINT'" Try to avoid the shark, which will"
+PRINT''" Try to avoid the shark, which will"
 PRINT "come slowly towards you initially, but"
 PRINT "don't let him bite you!"
 *FX15
 REPEATUNTILGET=32:VDU12
-PRINT'" Once you have collected all the junk"
+PRINT''" Once you have collected all the junk"
 PRINT "you will proceed to the next bay."
-PRINT'" In later levels, you will encounter"
+PRINT''" In later levels, you will encounter"
 PRINT "more harmful fish, and later on, both"
 PRINT "the shark and the harmful fish to"
 PRINT "contend with. Nature is cruel!"
-PRINT'" Controls:     Z - swim left"
+*FX15
+REPEATUNTILGET=32:VDU12
+PRINT''" Controls:"
+PRINT'"               Z - swim left"
 PRINT "               X - swim right"
 PRINT "             */"" - swim up"
 PRINT "               ? - swim down"
 PRINT "    Return/Enter - swim faster"
-PRINT "             S/Q - Sound on/off"
+PRINT'"             S/Q - Sound on/off"
 PRINT "             P/U - Pause/unpause"
+VDU26,31,4,22,129,157,135:PRINT;"PRESS SPACEBAR TO LOAD GAME  ";:VDU156
+VDU31,2,23,129,157,135:PRINT;"OR PRESS R TO REDEFINE CONTROLS  ";:VDU156
+VDU28,0,21,39,6
 *FX15
-REPEATUNTILGET=32:VDU26,12
-PROCchars:PROCenv
-FORT%=&900 TO &AFF STEP4:!T%=0:NEXT
-PROCassemble:W%=plotshape:R%=getaddr:Q%=check
-PAGE=&1100:HIMEM=&2BFF:CHAIN"Poly2"
-END
+ENDPROC
 DEFPROCcntr(D%,C%,Y%,msg$)
 X%=(40-LEN(msg$))/2:msg$=CHR$(128+C%)+msg$
 IFD%=1 FORN%=0TO1:VDU31,X%-2,Y%+N%,141:PRINT;msg$:NEXT:ENDPROC
 VDU31,X%-1,Y%+N%:PRINT;msg$:ENDPROC
+DEFPROCinit
+DIM k%(4)
+k%(0)=97:REM Z Left
+k%(1)=66:REM X Right
+k%(2)=72:REM */"" Up
+k%(3)=104:REM ? Down
+k%(4)=73:REM Return Swim faster
+REM 
+DIM k$(4)
+k$(0)="Swim left"
+k$(1)="Swim right"
+k$(2)="Swim up"
+k$(3)="Swim down"
+k$(4)="Swim faster"
+REM Find key lookup table
+A%=&AC:X%=0:Y%=255
+T%=((USR(&FFF4)DIV256)AND&FFFF)-1
+ENDPROC
 DEFPROCchars
 REM sea grass
 VDU23,224,202,106,106,106,110,126,126,60
@@ -95,93 +129,53 @@ ENVELOPE4,129,0,-10,-1,1,0,2,6,-1,0,-1,126,74
 REM Replenish air
 ENVELOPE5,1,0,0,0,50,25,25,127,-1,-1,-1,126,90
 ENDPROC
-DEFPROCassemble
-P%=&70
-[OPT 0
-.addr:EQUW 0\&70-71
-.top:EQUW &3000\&72-73
-.rowcounter:EQUB 0\&74
-.counter:EQUB 0\&75
-.temp:EQUB 0\&76
-.temp1:EQUB 0\&77
-.depth:EQUB 0\&78
-.shape:EQUW 0\&79-7A
-.offset:EQUB 0\&7B
-.shapeloaddr:EQUD 0:EQUW 0:EQUW 0
-.shapehiaddr:EQUD 0:EQUW 0:EQUW 0
-.shapesize:EQUD 0:EQUW 0:EQUW 0
-.shapedepth:EQUD 0:EQUW 0:EQUW 0
-]
-shapes=&2BFF
-REM PRINT"Loading sprites at &";~shapes
-FORI%=0TO7:READ filename$:REM PRINT"Sprite ";filename$
-OSCLI("LOAD "+filename$+" "+STR$~shapes)
-I%?shapeloaddr=shapes AND&FF
-I%?shapehiaddr=shapes DIV256
-READ I%?shapesize,I%?shapedepth
-shapes=shapes+I%?shapedepth*I%?shapesize
+DEFFNgetkey
+REPEAT
+G%=TRUE
+K%=-1
+IF INKEY(-1) THEN K%=0
+IF INKEY(-2) THEN K%=1
+A%=121:X%=0:Y%=0
+IF K%=-1 THEN K%=(USR(&FFF4)DIV256)AND255
+IF K%=32 OR K%=113 OR K%=55 OR K%=53 OR K%=81 OR K%=16 THEN G%=FALSE:VDU 7
+FOR B%=0 TO 4
+IF k%(B%)=K% THEN G%=FALSE
 NEXT
-DATA LDIVER,12,16,RDIVER,12,16,LFISH,4,8,RFISH,4,8,LSHK,16,16,RSHK,16,16,DLFISH,4,8,DRFISH,4,8
-REM PRINT"Sprites loaded, next free byte=&";~shapes
-FOR pass=0 TO 2 STEP 2
-P%=&900
-[OPT pass
-.getaddr
-LDA #&00:STA addr+1:TYA:EOR #&FF
-PHA:LSR A:LSR A:LSR A:TAY:LSR A:STA temp
-LDA #&00:ROR A:ADC top:PHP:STA addr:TYA
-ASL A:ADC temp:PLP:ADC top+1
-STA addr+1:LDA #&00:STA temp:TXA
-ASL A:ROL temp:ASL A:ROL temp:ASL A:ROL temp
-ADC addr:STA addr:LDA temp:ADC addr+1:BPL ok
-SEC:SBC #&50
-.ok
-STA addr+1:PLA:AND #&07:ORA addr:STA addr:RTS
-.plotshape
-PHA:JSR getaddr:PLA:TAY
-LDA shapeloaddr,Y:STA shape
-LDA shapehiaddr,Y:STA shape+1
-LDA shapesize,Y:STA counter
-LDA shapedepth,Y:STA depth
-\fall through to 'doplot'
-.doplot
-LDA addr+1:BEQ return
-.label
-LDY #&00:LDA addr+1:PHA:LDA addr:PHA
-LDA depth:STA rowcounter:LDA addr:AND #&07
-STA offset:LDA addr:AND #&F8:STA addr
-.innerloop
-LDA (shape),Y:INY:STY temp
-LDY offset:EOR (addr),Y:STA (addr),Y:INY
-CPY #&08:BEQ block
-.noblock
-STY offset:LDY temp:DEC rowcounter:BNE innerloop
-.nextblock
-LDA shape:CLC:ADC depth:STA shape:BCC nohi:INC shape+1
-.nohi
-CLC:PLA:ADC #&08:STA addr:PLA:ADC #&00
-BPL nobound1:SEC:SBC #&50
-.nobound1
-STA addr+1:DEC counter:BNE label
-.return
-RTS
-.block
-LDY #&00:LDA addr:CLC:ADC #&80:STA addr
-LDA addr+1:ADC #&02:BPL noboundary:SEC:SBC #&50
-.noboundary
-STA addr+1:BNE noblock
-.check
-STX &AB0:STY &AB1:LDY #7
-.checkloop
-LDA &AE0,Y\BX:CMP &AB0:BCS notinbox\BX>CX
-CLC:ADC #8\BW%:CMP &AB0:BCC notinbox\BX<CX
-LDA &AE8,Y:CMP &AB1:BCC notinbox\BY<CY
-SEC:SBC #8\BH%:CMP &AB1:BCC checkfinish\BY>CY - inverted check
-.notinbox
-DEY:BPL checkloop
-.checkfinish
-STY &AB2:RTS
-]
-NEXTpass
-REM PRINT"Press space to load game":REPEAT UNTIL INKEY-99
+UNTIL K%<>255 AND K%<>112 AND G%=TRUE
+=K%
+DEFPROCredefine
+R%=FALSE
+REPEAT
+VDU12
+PRINT''"Enter your preferred gameplay keys."
+PRINT'"Note that S,Q,P and U are reserved."
+PRINT
+W%=TIME+50:REPEAT UNTIL TIME>W%
+FOR Z%=0 TO 4
+k%(Z%)=-1
+NEXT
+FOR Z%=0 TO 4
+PRINTTAB(5);CHR$(131);k$(Z%);" - ";
+k%(Z%)=FNgetkey
+PRINT FNkey(k%(Z%))
+NEXT
+PRINT''TAB(4);CHR$(130);CHR$(136);"Keys OK?"
+W%=TIME+50:REPEAT UNTIL TIME>W%
+*FX 21,0
+N$=GET$
+IF N$="Y" OR N$="y" THEN R%=TRUE
+UNTIL R%=TRUE
 ENDPROC
+DEFFNkey(K%)
+LOCAL k$
+IF K%=0 THEN k$="Shift"
+IF K%=1 THEN k$="Ctrl"
+I%=-1
+S%=T%?K%
+RESTORE
+IF k$="" THEN REPEAT:READ I%,k$:UNTIL S%=I% OR I%=256
+IF I%=256 THEN k$=CHR$(S%)
+=k$
+DATA 0,"Tab",1,"Caps Lock",2,"Shift Lock",13,"Return",32,"Space",127,"Delete"
+DATA 130,"f2",131,"f3",132,"f4",132,"f5",133,"f6",134,"f7",135,"f8",136,"f9"
+DATA 139,"Copy",140,"Left",141,"Right",142,"Down",143,"Up",256,""
