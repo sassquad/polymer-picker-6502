@@ -2,19 +2,10 @@ REM Polymer Picker loader
 REM by Stephen Scott (c) 2021-22
 REM Thanks to ChrisB, jms2, lurkio and TonyLobster
 REM Hi to the Stardot community
-HIMEM=&2BFF
-FORT%=&900 TO &AFF STEP4:!T%=0:NEXT
-PROCenv:PROCassemble:W%=plotshape:R%=getaddr:Q%=check
-PAGE=&1100:HIMEM=&2BFF:CHAIN"Poly3":END
-DEFPROCenv
-ENVELOPE1,1,1,1,1,1,1,1,0,0,0,-5,120,120
-ENVELOPE2,3,-1,0,0,246,0,0,0,0,-1,-3,120,120
-ENVELOPE3,5,15,0,0,72,0,0,-6,127,0,-9,0,126
-ENVELOPE4,129,0,-10,-1,1,0,2,6,-1,0,-1,126,74
-ENVELOPE5,1,0,0,0,50,25,25,127,-1,-1,-1,126,90
-ENVELOPE6,1,0,0,0,0,0,0,120,0,0,-1,100,100
-ENDPROC
+HIMEM=&2BFF:PROCassemble:W%=plotshape:R%=getaddr:Q%=check
+PAGE=&1100:HIMEM=&2BFF:PRINT'"Loading...":CHAIN"Poly3":END
 DEFPROCassemble
+PRINT'"Assembling..."
 P%=&70
 [OPT 0
 .addr:EQUW 0\&70-71
@@ -92,16 +83,16 @@ LDA addr+1:ADC #&02:BPL noboundary:SEC:SBC #&50
 .noboundary
 STA addr+1:BNE noblock
 .check
-STX &AB0:STY &AB1:LDY #7
+STX &9C0:STY &9C1:LDY#7
 .checkloop
-LDA &AE0,Y\BX:CMP &AB0:BCS notinbox\BX>CX
-CLC:ADC #8\BW%:CMP &AB0:BCC notinbox\BX<CX
-LDA &AE8,Y:CMP &AB1:BCC notinbox\BY<CY
-SEC:SBC #8\BH%:CMP &AB1:BCC checkfinish\BY>CY - inverted check
+LDA &9F0,Y\BX:CMP &9C0:BCS notinbox\BX>CX
+CLC:ADC#8\BW%:CMP &9C0:BCC notinbox\BX<CX
+LDA &9F8,Y:CMP &9C1:BCC notinbox\BY<CY
+SEC:SBC#8\BH%:CMP &9C1:BCC checkfinish\BY>CY - inverted check
 .notinbox
 DEY:BPL checkloop
 .checkfinish
-STY &AB2:RTS
+STY &9C2:RTS
 ]
 NEXTpass
 ENDPROC
