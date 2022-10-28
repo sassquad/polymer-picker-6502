@@ -4,9 +4,16 @@ REM Thanks to ChrisB, jms2, lurkio and TonyLobster
 REM Hi to the Stardot community
 HIMEM=&2BFF
 FORT%=&900 TO &AFF STEP4:!T%=0:NEXT
-PROCassemble:W%=plotshape:R%=getaddr:Q%=check
-PAGE=&1100:HIMEM=&2BFF
-CHAIN"Poly3":END
+PROCenv:PROCassemble:W%=plotshape:R%=getaddr:Q%=check
+PAGE=&1100:HIMEM=&2BFF:CHAIN"Poly3":END
+DEFPROCenv
+ENVELOPE1,1,1,1,1,1,1,1,0,0,0,-5,120,120
+ENVELOPE2,3,-1,0,0,246,0,0,0,0,-1,-3,120,120
+ENVELOPE3,5,15,0,0,72,0,0,-6,127,0,-9,0,126
+ENVELOPE4,129,0,-10,-1,1,0,2,6,-1,0,-1,126,74
+ENVELOPE5,1,0,0,0,50,25,25,127,-1,-1,-1,126,90
+ENVELOPE6,1,0,0,0,0,0,0,120,0,0,-1,100,100
+ENDPROC
 DEFPROCassemble
 P%=&70
 [OPT 0
@@ -38,7 +45,7 @@ DATA LFISH,4,8,RFISH,4,8
 DATA LSHK,16,16,RSHK,16,16
 DATA DLFISH,4,8,DRFISH,4,8
 FOR pass=0 TO 2 STEP 2
-P%=&900
+P%=&A00
 [OPT pass
 .getaddr
 LDA #&00:STA addr+1:TYA:EOR #&FF
