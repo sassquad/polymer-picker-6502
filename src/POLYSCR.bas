@@ -3,6 +3,7 @@ REM by Stephen Scott (c) 2021-22
 REM Thanks to ChrisB, jms2 and lurkio
 REM Hi to the Stardot community
 MODE0:VDU23;8202;0;0;0;19,1,0;0;
+*FX200,1
 *LOAD PPBY 3000
 VDU19,1,7;0;
 TIME=0:REPEATUNTILTIME=100
