@@ -7,13 +7,13 @@ Your local coastline has become polluted with discarded plastic, which is harmin
 
 Each level contains 8 items to collect. You then proceed to the next level. The fish are initially harmless, but later levels require you to avoid the fish if you can, or they may injure you. Then of course, there's the sharks to contend with.
 
-As you progress, you have the ability to swim faster. This will consume more oxygen, however. When your airtank reaches about 50%, a spare tank will appear underneath your boat. Grab it to replenish your air. However, you only have one refill per level.
+As you progress, you have the ability to swim faster. This will consume more oxygen, however. When your airtank reaches about 50%, a spare tank will appear underneath your boat. Grab it to replenish your air. You only have one refill per level though, so use it sparingly.
 
 Cash is earned for each item of plastic collected. At the end of a level, a bonus is awarded for each fish that is left.
 
 If you run out of air, or all the fish die, then it's game over.
 
-This is a work in progress game, which was started in September 2021. Development has been sporadic. Previous versions can be downloaded from the [game's dedicated Stardot thread](https://stardot.org.uk/forums/viewtopic.php?f=53&t=23615).
+Work on this game started in September 2021, and is due for release sometime in November 2022. Previous versions can be downloaded from the [game's dedicated Stardot thread](https://stardot.org.uk/forums/viewtopic.php?f=53&t=23615).
 
 <img src="polymer-picker-1.png" alt="Image of Polymer Picker" width="450" />
 
@@ -29,6 +29,7 @@ This repo includes the build process employed on my Apple iMac, which not only i
 
 * [b2 emulator](https://github.com/tom-seddon/b2)
 * [Visual Studio Code](https://github.com/microsoft/vscode) (using the [Beeb VSC extension](https://github.com/simondotm/beeb-vsc), which offers some BASIC syntax highlighting)
+* [basictool](https://github.com/ZornsLemma/basictool) - a tool I've used to compress the code to fit into memory. Recent versions are harder to read as a result. I'll try and put an uncompressed version into the repo in the future. The process involved is manual - automating this step, results in the code not working, so some further changes are required.
 
 VS Code's Tasks feature is employed to good effect here, by allowing a 'build' and 'test' task, the former runs the shell script `build.sh` which kicks beebasm, containing the following script:
 
@@ -89,4 +90,4 @@ The following people within the Stardot community were very helpful in my endeav
 
 Special mention to colinhoard, fizzgog and Richard Toohey for your comments on the game.
 
-Thanks for reading. I am really hopeful that this game will get finished sometime in 2022. In the meantime, I hope you enjoy what you find. All feedback is welcome.
+Thanks for reading. The game is due for release in November 2022. In the meantime, I hope you enjoy what you find. All feedback is welcome.
