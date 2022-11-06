@@ -13,6 +13,14 @@ Cash is earned for each item of plastic collected. At the end of a level, a bonu
 
 If you run out of air, or all the fish die, then it's game over.
 
+## Play online
+
+The current pre-release version can be played online. You'll need a desktop/laptop computer or a tablet with a keyboard to play this. I have not yet tried this game on BeebDroid, but it's likely to play poorly, the older your mobile device is.
+
+[Play online](https://bbc.godbolt.org/?disc=https://www.sassquad.net/downloads/polymer-picker/polymer-picker-assembly-v0-14.ssd&autoboot)
+
+## How did this game come about?
+
 Work on this game started in September 2021, and is due for release sometime in November 2022. Previous versions can be downloaded from the [game's dedicated Stardot thread](https://stardot.org.uk/forums/viewtopic.php?f=53&t=23615).
 
 <img src="polymer-picker-1.png" alt="Image of Polymer Picker" width="450" />
