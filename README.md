@@ -1,27 +1,29 @@
 # Polymer Picker (BBC Basic/Assembler version)
 A BBC Basic and Assembler version of the Polymer Picker game.
 
+[Play online](https://bbc.godbolt.org/?disc=https://www.sassquad.net/downloads/polymer-picker/polymer-picker-assembly-v0-95.ssd&autoboot)
+
 ## About the game
 
 Your local coastline has become polluted with discarded plastic, which is harming the aquatic wildlife. Dive in, and collect the rubbish, before the fish consume it and die.
 
 Each level contains 8 items to collect. You then proceed to the next level. The fish are initially harmless, but later levels require you to avoid the fish if you can, or they may injure you. Then of course, there's the sharks to contend with.
 
-As you progress, you have the ability to swim faster. This will consume more oxygen, however. When your airtank reaches about 50%, a spare tank will appear underneath your boat. Grab it to replenish your air. You only have one refill per level though, so use it sparingly.
+As you progress, you have the ability to swim faster. This will consume more oxygen, however. When your airtank reaches about 50%, a spare tank will appear underneath your boat. Grab it to replenish your air. You only have one refill per level though, so use it sparingly!
 
-Cash is earned for each item of plastic collected. At the end of a level, a bonus is awarded for each fish that is left.
+Cash is earned for each item of plastic collected. At the end of a level, a bonus is awarded for each fish that is left, in addition to any remaining air in your tank.
 
 If you run out of air, or all the fish die, then it's game over.
 
 ## Play online
 
-The current pre-release version can be played online. You'll need a desktop/laptop computer or a tablet with a keyboard to play this. I have not yet tried this game on BeebDroid, but it's likely to play poorly, the older your mobile device is.
+The current release candidate version can be played online. You'll need a desktop/laptop computer or a tablet with a keyboard to play this. I have not yet tried this game on BeebDroid, but it's likely to play poorly, the older your mobile device is.
 
-[Play online](https://bbc.godbolt.org/?disc=https://www.sassquad.net/downloads/polymer-picker/polymer-picker-assembly-v0-14.ssd&autoboot)
+[Play online](https://bbc.godbolt.org/?disc=https://www.sassquad.net/downloads/polymer-picker/polymer-picker-assembly-v0-95.ssd&autoboot)
 
 ## How did this game come about?
 
-Work on this game started in September 2021, and is due for release sometime in November 2022. Previous versions can be downloaded from the [game's dedicated Stardot thread](https://stardot.org.uk/forums/viewtopic.php?f=53&t=23615).
+Work on this game started in September 2021, and is at release candidate status. Previous versions can be downloaded from the [game's dedicated Stardot thread](https://stardot.org.uk/forums/viewtopic.php?f=53&t=23615).
 
 <img src="polymer-picker-1.png" alt="Image of Polymer Picker" width="450" />
 
@@ -98,4 +100,6 @@ The following people within the Stardot community were very helpful in my endeav
 
 Special mention to colinhoard, fizzgog and Richard Toohey for your comments on the game.
 
-Thanks for reading. The game is due for release in November 2022. In the meantime, I hope you enjoy what you find. All feedback is welcome.
+Thanks for reading. The game is almost due for formal release. Do play it, and hopefully there are no remaining bugs, or the dreaded appearance of the 'No room' error. 
+
+I hope you enjoy what you find. All feedback is welcome!
