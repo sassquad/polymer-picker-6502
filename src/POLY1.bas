@@ -46,10 +46,12 @@ PRINT "don't let him bite you!"
 REPEATUNTILGET=32:VDU12
 PRINT''" Once you have collected all the junk"
 PRINT "you will proceed to the next bay."
-PRINT''" In later levels, you will encounter"
-PRINT "more harmful fish, and later on, both"
-PRINT "the shark and the harmful fish to"
-PRINT "contend with. Nature is cruel!"
+PRINT "Bonus cash is awarded for each fish"
+PRINT "remaining alive, in addition to any"
+PRINT "remaining air left."
+PRINT''" As you progress, fish on later levels"
+PRINT "will hurt you, and... well, let's just"
+PRINT "say Nature is cruel!"
 *FX15
 REPEATUNTILGET=32:VDU12
 PRINT''" Controls:"
@@ -111,11 +113,7 @@ VDU23,237,0,0,120,-3,-1,-4,120,0
 REM heart
 VDU23,238,108,-2,-2,-2,-2,124,56,16
 REM fish
-VDU23,240,8,24,61,223,127,61,24,8
 VDU23,241,16,24,188,-5,-2,188,24,8
-VDU23,250,0,126,126,126,126,126,126,0
-VDU23,254,0,0,8,32,4,16,0,0
-VDU23,255,1,0,32,8,0,64,0,1
 ENDPROC
 DEFPROCenv
 ENVELOPE1,1,0,0,0,50,25,25,127,-1,-1,-1,126,90
