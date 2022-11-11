@@ -1,7 +1,7 @@
 # Polymer Picker (BBC Basic/Assembler version)
 A BBC Basic and Assembler version of the Polymer Picker game.
 
-[Play online](https://bbc.godbolt.org/?disc=https://www.sassquad.net/downloads/polymer-picker/polymer-picker-assembly-v0-95.ssd&autoboot)
+[Play online](https://bbc.godbolt.org/?disc=https://www.sassquad.net/downloads/polymer-picker/polymer-picker-assembly.ssd&autoboot)
 
 ## About the game
 
@@ -17,9 +17,9 @@ If you run out of air, or all the fish die, then it's game over.
 
 ## Play online
 
-The current release candidate version can be played online. You'll need a desktop/laptop computer or a tablet with a keyboard to play this. I have not yet tried this game on BeebDroid, but it's likely to play poorly, the older your mobile device is.
+The current latest version can be played online. You'll need a desktop/laptop computer or a tablet with a keyboard to play this.
 
-[Play online](https://bbc.godbolt.org/?disc=https://www.sassquad.net/downloads/polymer-picker/polymer-picker-assembly-v0-95.ssd&autoboot)
+[Play online](https://bbc.godbolt.org/?disc=https://www.sassquad.net/downloads/polymer-picker/polymer-picker-assembly.ssd&autoboot)
 
 ## How did this game come about?
 
@@ -39,7 +39,7 @@ This repo includes the build process employed on my Apple iMac, which not only i
 
 * [b2 emulator](https://github.com/tom-seddon/b2)
 * [Visual Studio Code](https://github.com/microsoft/vscode) (using the [Beeb VSC extension](https://github.com/simondotm/beeb-vsc), which offers some BASIC syntax highlighting)
-* [basictool](https://github.com/ZornsLemma/basictool) - a tool I've used to compress the code to fit into memory. Recent versions are harder to read as a result. I'll try and put an uncompressed version into the repo in the future. The process involved is manual - automating this step, results in the code not working, so some further changes are required.
+* [basictool](https://github.com/ZornsLemma/basictool) - a tool I've used to compress the code to fit into memory. Recent versions are harder to read as a result. I'll try and put an uncompressed version into the repo in the future. The process involved is manual - automating this step, results in the code not working, so some further changes are required in the future to make this build process work without issue.
 
 VS Code's Tasks feature is employed to good effect here, by allowing a 'build' and 'test' task, the former runs the shell script `build.sh` which kicks beebasm, containing the following script:
 
@@ -94,12 +94,10 @@ As per my other games, some of the work here was only possible, thanks to the ef
 The following people within the Stardot community were very helpful in my endeavours to get this version of the game to fruition. Check out the [game's dedicated Stardot thread](https://stardot.org.uk/forums/viewtopic.php?f=53&t=23615) for details of the game's evolution.
 
 * jms2 - for huge efforts in providing the assembler routines (taken from Jonathan Griffith's respected book Creative Assembler for the BBC Micro), the intial sprite creations, and assistance with user definable keys.
-* ChrisB - for helping out in issues of collision detection, in some of the earlier editions of the game
+* ChrisB - for helping out in issues of collision detection, in some of the earlier editions of the game.
 * lurkio - for some essential debugging, particularly with random seeding.
 * TonyLobster - for some essential debugging, particularly with random seeding, and assistance in debugging of the user definable keyboard routine.
 
 Special mention to colinhoard, fizzgog and Richard Toohey for your comments on the game.
 
-Thanks for reading. The game is almost due for formal release. Do play it, and hopefully there are no remaining bugs, or the dreaded appearance of the 'No room' error. 
-
-I hope you enjoy what you find. All feedback is welcome!
+Thanks for reading. I hope you enjoy what you find. All feedback is welcome!
