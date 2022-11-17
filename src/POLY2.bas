@@ -1,6 +1,6 @@
 REM Polymer Picker loader
-REM by Stephen Scott (c) 2021-22
-REM Thanks to ChrisB, jms2, lurkio and TonyLobster
+REM by Stephen Scott (c) 2022
+REM Thanks to ChrisB, jms2, lurkio, TonyLobster and fizgog
 REM Hi to the Stardot community
 HIMEM=&2BFF
 FORT%=&900 TO &AFF STEP4:!T%=0:NEXT
@@ -24,7 +24,7 @@ P%=&70
 .shapesize:EQUD 0:EQUW 0:EQUW 0
 .shapedepth:EQUD 0:EQUW 0:EQUW 0
 ]
-shapes=&2C1F
+shapes=&2BFF
 FORI%=0TO7
 READ filename$
 OSCLI("LOAD "+filename$+" "+STR$~shapes)
