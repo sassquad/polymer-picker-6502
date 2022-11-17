@@ -1,13 +1,13 @@
 REM Polymer Picker title screen loader
 REM by Stephen Scott (c) 2022
-REM Thanks to ChrisB, jms2, lurkio, TonyLobster and fizgog
+REM Thanks to ChrisB, jms2, lurkio, TobyLobster and fizgog
 REM Hi to the Stardot community
 MODE0:VDU23;8202;0;0;0;19,1,0;0;
 *FX200,1
 *LOAD PPBY 3000
 VDU19,1,6;0;
 PRINTTAB(9,23)"with the grateful assistance of Stardot community forum members"
-PRINTTAB(18,25)"ChrisB, jms2, lurkio, TonyLobster and fizgog"
+PRINTTAB(18,25)"ChrisB, jms2, lurkio, TobyLobster and fizgog"
 PRINTTAB(27,29)"Press SPACEBAR to continue":*FX15
 REPEATUNTILGET=32
 MODE1:VDU23;8202;0;0;0;19,1,0;0;19,2,0;0;19,3,0;0;
