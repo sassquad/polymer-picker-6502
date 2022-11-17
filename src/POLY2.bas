@@ -24,7 +24,7 @@ P%=&70
 .shapesize:EQUD 0:EQUW 0:EQUW 0
 .shapedepth:EQUD 0:EQUW 0:EQUW 0
 ]
-shapes=&2BFF
+shapes=&2C1F
 FORI%=0TO7
 READ filename$
 OSCLI("LOAD "+filename$+" "+STR$~shapes)
