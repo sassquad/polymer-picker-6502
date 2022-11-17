@@ -96,8 +96,9 @@ The following people within the Stardot community were very helpful in my endeav
 * jms2 - for huge efforts in providing the assembler routines (taken from Jonathan Griffith's respected book Creative Assembler for the BBC Micro), the intial sprite creations, and assistance with user definable keys.
 * ChrisB - for helping out in issues of collision detection, in some of the earlier editions of the game.
 * lurkio - for some essential debugging, particularly with random seeding.
-* TonyLobster - for some essential debugging, particularly with random seeding, and assistance in debugging of the user definable keyboard routine.
+* TobyLobster - for some essential debugging, particularly with random seeding, and assistance in debugging of the user definable keyboard routine.
+* fizgog - for some later playtesting, discovering of memory leaks, and high score table breakages.
 
-Special mention to colinhoard, fizzgog and Richard Toohey for your comments on the game.
+Special mention to Colin Hoad and Richard Toohey for your comments on the game.
 
 Thanks for reading. I hope you enjoy what you find. All feedback is welcome!
