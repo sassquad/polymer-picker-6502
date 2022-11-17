@@ -1,6 +1,6 @@
 REM Polymer Picker loader
-REM by Stephen Scott (c) 2021-22
-REM Thanks to ChrisB, jms2, lurkio and TonyLobster
+REM by Stephen Scott (c) 2022
+REM Thanks to ChrisB, jms2, lurkio, TonyLobster and fizgog
 REM Hi to the Stardot community
 MODE7:VDU23;8202;0;0;0;
 HIMEM=&2BFF
@@ -19,9 +19,8 @@ PAGE=&1100:HIMEM=&2BFF:CHAIN"Poly2"
 END
 DEFPROCinstruct
 PROCcntr(1,6,1,"Polymer Picker")
-PROCcntr(0,6,1,"by Stephen Scott (c) 2021-22")
-PROCcntr(0,6,2,"Thanks to ChrisB, jms2, lurkio,")
-PROCcntr(0,6,3,"TonyLobster and all at Stardot")
+PROCcntr(0,6,1,"Written by Stephen Scott (c) 2022")
+PROCcntr(0,6,2,"w: sassquad.net / t: @sassquad")
 PRINT''" Your local tropical bay is polluted"
 PRINT "with discarded plastic. Your job is to"
 PRINT "try and clean it up. Swim and collect"
