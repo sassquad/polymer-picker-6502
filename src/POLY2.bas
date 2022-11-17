@@ -1,6 +1,6 @@
 REM Polymer Picker loader
 REM by Stephen Scott (c) 2022
-REM Thanks to ChrisB, jms2, lurkio, TonyLobster and fizgog
+REM Thanks to ChrisB, jms2, lurkio, TobyLobster and fizgog
 REM Hi to the Stardot community
 HIMEM=&2BFF
 FORT%=&900 TO &AFF STEP4:!T%=0:NEXT
