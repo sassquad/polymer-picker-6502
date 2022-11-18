@@ -2,7 +2,7 @@ REM Polymer Picker loader
 REM by Stephen Scott (c) 2022
 REM Thanks to ChrisB, jms2, lurkio, TobyLobster and fizgog
 REM Hi to the Stardot community
-HIMEM=&2BFF
+HIMEM=&2C00
 FORT%=&900 TO &AFF STEP4:!T%=0:NEXT
 PROCassemble:W%=plotshape:R%=getaddr:Q%=check
 PAGE=&1100:HIMEM=&2BFF
@@ -24,10 +24,9 @@ P%=&70
 .shapesize:EQUD 0:EQUW 0:EQUW 0
 .shapedepth:EQUD 0:EQUW 0:EQUW 0
 ]
-shapes=&2BFF
+shapes=&2C00
 FORI%=0TO7
 READ filename$
-OSCLI("LOAD "+filename$+" "+STR$~shapes)
 I%?shapeloaddr=shapes AND&FF
 I%?shapehiaddr=shapes DIV256
 READ I%?shapesize,I%?shapedepth
