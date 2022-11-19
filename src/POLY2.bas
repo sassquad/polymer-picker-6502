@@ -5,8 +5,9 @@ REM Hi to the Stardot community
 HIMEM=&2C00
 FORT%=&900 TO &AFF STEP4:!T%=0:NEXT
 PROCassemble:W%=plotshape:R%=getaddr:Q%=check
-PAGE=&1100:HIMEM=&2BFF
-CHAIN"Poly3":END
+*LOAD SPRITES
+PAGE=&1100:HIMEM=&2C00
+CHAIN"Poly1":END
 DEFPROCassemble
 P%=&70
 [OPT 0

@@ -8,13 +8,21 @@ PROCenv
 PRINTTAB(5,30)"  Press SPACEBAR to continue  ":*FX15
 REPEATUNTILGET=32
 MODE7:VDU23;8202;0;0;0;
-PROCincstruct
+PROCask
 *LOAD POLY3 3000
 REPEAT
 A$=GET$
+UNTIL A$=" " OR A$="I" OR A$="R"
+IF A$=" " THEN VDU26,12:PROCstart
+IF A$="R" THEN VDU26,12:PROCredefine:VDU26,12:PROCstart
+IF A$="I" THEN VDU26,12:PROCinstruct
+REPEAT
+A$=GET$
 UNTIL A$=" " OR A$="R"
-IF A$=" " THEN VDU26,12
-IF A$="R" THEN PROCredefine
+IF A$=" " THEN VDU26,12:PROCstart
+IF A$="R" THEN VDU26,12:PROCredefine:VDU26,12:PROCstart
+END
+DEFPROCstart
 REM Write key definitions into &100
 FOR X%=0 TO 4
 X%?&100=k%(X%)
@@ -24,6 +32,20 @@ P%=&50:[OPT3:ldx#0:ldy#&1D:lda&4D00,X:sta&2B00,X:inx:bne&54:dec&56:dec&59:dey:bp
 *TAPE
 *FX138,0,128
 PAGE=&E00:END
+ENDPROC
+DEFPROCask
+PROCcntr(1,6,1,"Polymer Picker")
+PROCcntr(0,6,1,"Written by Stephen Scott (c) 2022")
+PROCcntr(0,6,2,"w: sassquad.net / t: @sassquad")
+PROCcntr(0,3,5,"with the grateful assistance of")
+PROCcntr(0,3,6,"Stardot community forum members")
+PROCcntr(0,3,7,"ChrisB, jms2, lurkio, TobyLobster,")
+PROCcntr(0,3,8,"hexwab and fizgog!")
+PROCcntr(0,2,10,"Press I to view the instructions")
+PROCcntr(0,2,12,"or R to redefine the controls")
+VDU26,31,2,22,129,157,135:PRINT;"OR PRESS SPACEBAR TO PLAY GAME  ";:VDU156,28,0,21,39,6
+*FX15
+ENDPROC
 DEFPROCinstruct
 PROCcntr(1,6,1,"Polymer Picker")
 PROCcntr(0,6,1,"Written by Stephen Scott (c) 2022")
@@ -68,7 +90,7 @@ PRINT "               ? - swim down"
 PRINT "    Return/Enter - swim faster"
 PRINT'"             S/Q - Sound on/off"
 PRINT "             P/U - Pause/unpause"
-VDU26,31,4,22,129,157,135:PRINT;"PRESS SPACEBAR TO LOAD GAME  ";:VDU156
+VDU26,31,4,22,129,157,135:PRINT;"PRESS SPACEBAR TO PLAY GAME  ";:VDU156
 VDU31,2,23,129,157,135:PRINT;"OR PRESS R TO REDEFINE CONTROLS  ";:VDU156
 VDU28,0,21,39,6
 *FX15
@@ -144,6 +166,11 @@ UNTIL K%<>255 AND K%<>112 AND G%=TRUE
 =K%
 DEFPROCredefine
 S%=FALSE
+VDU26,12
+PROCcntr(1,6,1,"Polymer Picker")
+PROCcntr(0,6,1,"Written by Stephen Scott (c) 2022")
+PROCcntr(0,6,2,"w: sassquad.net / t: @sassquad")
+VDU28,0,21,39,6
 REPEAT
 VDU12
 PRINT''"Enter your preferred gameplay keys."
