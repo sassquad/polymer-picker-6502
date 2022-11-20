@@ -2,21 +2,50 @@ REM Polymer Picker loader
 REM by Stephen Scott (c) 2022
 REM Thanks to ChrisB, jms2, lurkio, TobyLobster and fizgog
 REM Hi to the Stardot community
-MODE7:VDU23;8202;0;0;0;
-HIMEM=&2BFF
+HIMEM=&2C00
 PROCinit:PROCchars
-PROCenv:PROCinstruct
+PROCenv
+PRINTTAB(5,30)"  Press SPACEBAR to continue  ":*FX15
+REPEATUNTILGET=32
+MODE7:VDU23;8202;0;0;0;
+PROCask
+*LOAD POLY3 3000
+REPEAT
+A$=GET$
+UNTIL A$=" " OR A$="I" OR A$="R"
+IF A$=" " THEN VDU26,12:PROCstart
+IF A$="R" THEN VDU26,12:PROCredefine:VDU26,12:PROCstart
+IF A$="I" THEN VDU26,12:PROCinstruct
 REPEAT
 A$=GET$
 UNTIL A$=" " OR A$="R"
-IF A$=" " THEN VDU26,12
-IF A$="R" THEN PROCredefine
+IF A$=" " THEN VDU26,12:PROCstart
+IF A$="R" THEN VDU26,12:PROCredefine:VDU26,12:PROCstart
+END
+DEFPROCstart
 REM Write key definitions into &100
 FOR X%=0 TO 4
 X%?&100=k%(X%)
-NEXT:VDU26,12
-PAGE=&1100:HIMEM=&2BFF:CHAIN"Poly2"
-END
+NEXT:VDU26,12,21
+P%=&50:[OPT3:ldx#0:ldy#&1D:lda&4D00,X:sta&2B00,X:inx:bne&54:dec&56:dec&59:dey:bpl&54:rts:]
+*KEY0CALL&50|MOLD|MRUN|F|M
+*TAPE
+*FX138,0,128
+PAGE=&E00:END
+ENDPROC
+DEFPROCask
+PROCcntr(1,6,1,"Polymer Picker")
+PROCcntr(0,6,1,"Written by Stephen Scott (c) 2022")
+PROCcntr(0,6,2,"w: sassquad.net / t: @sassquad")
+PROCcntr(0,3,5,"with the grateful assistance of")
+PROCcntr(0,3,6,"Stardot community forum members")
+PROCcntr(0,3,7,"ChrisB, jms2, lurkio, TobyLobster,")
+PROCcntr(0,3,8,"hexwab and fizgog!")
+PROCcntr(0,2,10,"Press I to view the instructions")
+PROCcntr(0,2,12,"or R to redefine the controls")
+VDU26,31,2,22,129,157,135:PRINT;"OR PRESS SPACEBAR TO PLAY GAME  ";:VDU156,28,0,21,39,6
+*FX15
+ENDPROC
 DEFPROCinstruct
 PROCcntr(1,6,1,"Polymer Picker")
 PROCcntr(0,6,1,"Written by Stephen Scott (c) 2022")
@@ -61,7 +90,7 @@ PRINT "               ? - swim down"
 PRINT "    Return/Enter - swim faster"
 PRINT'"             S/Q - Sound on/off"
 PRINT "             P/U - Pause/unpause"
-VDU26,31,4,22,129,157,135:PRINT;"PRESS SPACEBAR TO LOAD GAME  ";:VDU156
+VDU26,31,4,22,129,157,135:PRINT;"PRESS SPACEBAR TO PLAY GAME  ";:VDU156
 VDU31,2,23,129,157,135:PRINT;"OR PRESS R TO REDEFINE CONTROLS  ";:VDU156
 VDU28,0,21,39,6
 *FX15
@@ -121,13 +150,14 @@ ENVELOPE3,5,15,0,0,72,0,0,-6,127,0,-9,0,126
 ENVELOPE4,129,0,-10,-1,1,0,2,6,-1,0,-1,126,74
 ENDPROC
 DEFFNgetkey
+A%=122
+REPEATUNTIL(USR(&FFF4)AND&FF00)=&FF00
 REPEAT
 G%=TRUE
 K%=-1
 IF INKEY(-1) THEN K%=0
 IF INKEY(-2) THEN K%=1
-A%=121:X%=0:Y%=0
-IF K%=-1 THEN K%=(USR(&FFF4)DIV256)AND255
+IF K%=-1 THEN K%=(USR(&FFF4)AND&FF00)DIV256
 IF K%=32 OR K%=113 OR K%=55 OR K%=53 OR K%=81 OR K%=16 THEN G%=FALSE:VDU 7
 FOR B%=0 TO 4
 IF k%(B%)=K% THEN G%=FALSE
@@ -135,13 +165,17 @@ NEXT
 UNTIL K%<>255 AND K%<>112 AND G%=TRUE
 =K%
 DEFPROCredefine
-R%=FALSE
+S%=FALSE
+VDU26,12
+PROCcntr(1,6,1,"Polymer Picker")
+PROCcntr(0,6,1,"Written by Stephen Scott (c) 2022")
+PROCcntr(0,6,2,"w: sassquad.net / t: @sassquad")
+VDU28,0,21,39,6
 REPEAT
 VDU12
 PRINT''"Enter your preferred gameplay keys."
 PRINT'"Note that S,Q,P and U are reserved."
 PRINT
-W%=TIME+50:REPEAT UNTIL TIME>W%
 FOR Z%=0 TO 4
 k%(Z%)=-1
 NEXT
@@ -151,21 +185,20 @@ k%(Z%)=FNgetkey
 PRINT FNkey(k%(Z%))
 NEXT
 PRINT''TAB(4);CHR$(130);CHR$(136);"Keys OK?"
-W%=TIME+50:REPEAT UNTIL TIME>W%
 *FX 21,0
 N$=GET$
-IF N$="Y" OR N$="y" THEN R%=TRUE
-UNTIL R%=TRUE
+IF N$="Y" OR N$="y" THEN S%=TRUE
+UNTIL S%=TRUE
 ENDPROC
 DEFFNkey(K%)
 LOCAL k$
 IF K%=0 THEN k$="Shift"
 IF K%=1 THEN k$="Ctrl"
 I%=-1
-S%=T%?K%
+A%=5:X%=&14:Y%=4:E%=T%+K%:F%=0:CALL&FFF1
 RESTORE
-IF k$="" THEN REPEAT:READ I%,k$:UNTIL S%=I% OR I%=256
-IF I%=256 THEN k$=CHR$(S%)
+IF k$="" THEN REPEAT:READ I%,k$:UNTIL F%=I% OR I%=256
+IF I%=256 THEN k$=CHR$(F%)
 =k$
 DATA 0,"Tab",1,"Caps Lock",2,"Shift Lock",13,"Return",32,"Space",127,"Delete"
 DATA 130,"f2",131,"f3",132,"f4",132,"f5",133,"f6",134,"f7",135,"f8",136,"f9"
