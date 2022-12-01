@@ -48,39 +48,56 @@ VS Code's Tasks feature is employed to good effect here, by allowing a 'build' a
 The `Polymer-Picker-6502.asm` file consists of the following:
 
 ```
+PUTTEXT "src/BOOT.txt", "!BOOT",&FFFFFF,&FFFFFF
 PUTBASIC "src/POLYSCR.bas","POLYSCR"
-PUTBASIC "src/POLY1.bas","POLY1"
+PUTFILE "src/PPBY.bin","PPBY",&FF1800,&FF1800
+PUTFILE "src/PPSCR.bin","PPSCR",&FF3000,&FF3000
 PUTBASIC "src/POLY2.bas","POLY2"
+ORG &2C00
+.start
+INCBIN "src/LDIVER.bin"
+INCBIN "src/RDIVER.bin"
+INCBIN "src/LFISH.bin"
+INCBIN "src/RFISH.bin"
+INCBIN "src/LSHK.bin"
+INCBIN "src/RSHK.bin"
+INCBIN "src/DLFISH.bin"
+INCBIN "src/DRFISH.bin"
+.end
+SAVE "SPRITES",start,end
+PUTBASIC "src/POLY1.bas","POLY1"
 PUTBASIC "src/POLY3.bas","POLY3"
-PUTFILE "src/LFISH.bin","LFISH",0
-PUTFILE "src/RFISH.bin","RFISH",0
-PUTFILE "src/DLFISH.bin","DLFISH",0
-PUTFILE "src/DRFISH.bin","DRFISH",0
-PUTFILE "src/LSHK.bin","LSHK",0
-PUTFILE "src/RSHK.bin","RSHK",0
-PUTFILE "src/LDIVER.bin","LDIVER",0
-PUTFILE "src/RDIVER.bin","RDIVER",0
-PUTFILE "src/PPBY.bin","PPBY",0
-PUTFILE "src/PPSCR.bin","PPSCR",0
-PUTTEXT "src/BOOT.txt", "!BOOT",&FFFF
+PUTBASIC "src/POLY4.bas","POLY4"
 ```
 
-This takes the files within the `src` folder, and outputs them in the correct format, prior to building the disc image. In a major change from the BASIC version, sprite files are present. Once the instructions are displayed within `POLY1`, these sprites are loaded into memory by `POLY2`, after the sprite handling routines have been assembled. `POLY3` contains all the game code, which uses various CALLs to the sprite handlers to display the graphics.
+The following attempts to paraphrase an approach in more efficient memory management of the game, and some nifty loading techniques, which improve the loading time, and playability of the game, as performed by Stardot forum member 'hexwab' - any errors or omissions are my fault.
 
-The invocation of the bootfile, to make the disc autorun, was initially the missing element from making this disc image complete. This is due to BeebAsm's normal staple being the building of 6502 code files, invoked via `*RUN`. This approach doesn't work with BASIC files, as these are normally run with the `CHAIN` command, so it required a bit more Googling to find the correct way to build the bootfile for the game. 
+The above build file takes the files within the `src` folder, and outputs them in the correct format, prior to building the disc image. In a major change from the BASIC version, sprite files are present. The individual sprites are merged into a single sprite file, `SPRITES`, for more efficient loading. The other files are assembled close to each other in the disc image, also for more efficient loading.
+
+Due to some recently introduced changes, the game files are now loaded in a different order to that of their filenames. `POLYSCR` is loaded first, which displays two screen files. Although `PPBY.bin` was originally output into high resolution MODE 0, `POLYSCR` now loads it into a smaller version of MODE 1, to shorten loading time, and allow the use of a neat fade in and out effect, before loading the main title screen `PPSCR`.
+
+While the title screen is displayed, some further loading of files is performed 'in the background', starting with `POLY2` which contains some assembly language for the sprite routines. These have been further optimised for speed and efficiency. The `SPRITES` file is loaded into memory, before `POLY1` is loaded, which contains the instructions.
+
+Before the instructions are displayed, `POLY1` *LOADs the two remaining BASIC files - `POLY3` and `POLY4` - into various memory locations. At this point, the loading screen will then invite you to press the spacebar to continue. This will display the options screen in MODE 7 straight away - there is no further loading required from this point.
+
+Once you are finished with the instructions, or redefining the keys, a small piece of assembler code is run which relocates the game into a lower portion of memory, before running the game. MODE 7 uses 1k of memory for the high score table, while the game uses MODE 2, which uses 20k of the BBC Micro's 32k of memory - so there isn't much left to play with!
+
+`POLY4` contains a variety of VDU numbers which are read into string variables, for use in `POLY3`, along with some high score table data. The string variables are used in the game, and render in a faster manner in BASIC than using decimal VDU values, performed in previous versions.
+
+`POLY3` is the game code itself, which remains heavily compacted. The above technique has freed up about 1.5k of memory with which to add new features, or perform further refinements.
 
 Essentially, the `beebasm` call includes the `-opt 3` flag, that enables the disc image to be executable. The following line:
 
-`PUTTEXT "src/BOOT.txt", "!BOOT",&FFFF`
+`PUTTEXT "src/BOOT.txt", "!BOOT",&FFFFFF,&FFFFFF`
 
-within `Polymer-Picker-6502.asm`, ensures the bootfile is created with the correct hooks to allow it to work.
+within `Polymer-Picker-6502.asm`, ensures the bootfile is created with the correct hooks to allow it to work, and is saved to a higher sector in the disc image, so it is found more quickly when booting.
 
 The bootfile itself is fairly standard:
 
 ```
 *BASIC
 *FX21
-CLOSE#0:CHAIN "POLYSCR"
+CLOSE#0:PAGE=&1100:CHAIN"POLYSCR"
 ```
 
 This boot content appears on a lot of disc images within the BBC Micro Game Archive's disc images, and basically ensures the computer, or emulator is all set up correctly, and has no 'open' files to corrupt disc images, prior to running the disc image. At least, that's what I believe.
@@ -98,6 +115,7 @@ The following people within the Stardot community were very helpful in my endeav
 * lurkio - for some essential debugging, particularly with random seeding.
 * TobyLobster - for some essential debugging, particularly with random seeding, and assistance in debugging of the user definable keyboard routine.
 * fizgog - for some later playtesting, discovering of memory leaks, and high score table breakages.
+* hexwab - for some invaluable efforts (described above) that have improved the loading sequence, and sprite routine for faster gameplay, as well as freeing up extra memory.
 
 Special mention to Colin Hoad and Richard Toohey for your comments on the game.
 
