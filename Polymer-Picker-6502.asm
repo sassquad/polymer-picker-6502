@@ -17,3 +17,4 @@ INCBIN "src/DRFISH.bin"
 SAVE "SPRITES",start,end
 PUTBASIC "src/POLY1.bas","POLY1"
 PUTBASIC "src/POLY3.bas","POLY3"
+PUTBASIC "src/POLY4.bas","POLY4"
