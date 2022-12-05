@@ -3,7 +3,7 @@ PUTBASIC "src/POLYSCR.bas","POLYSCR"
 PUTFILE "src/PPBY.bin","PPBY",&FF1800,&FF1800
 PUTFILE "src/PPSCR.bin","PPSCR",&FF3000,&FF3000
 PUTBASIC "src/POLY2.bas","POLY2"
-ORG &2C00
+ORG &2B00
 .start
 INCBIN "src/LDIVER.bin"
 INCBIN "src/RDIVER.bin"
@@ -13,6 +13,7 @@ INCBIN "src/LSHK.bin"
 INCBIN "src/RSHK.bin"
 INCBIN "src/DLFISH.bin"
 INCBIN "src/DRFISH.bin"
+INCBIN "src/FSHK.bin"
 .end
 SAVE "SPRITES",start,end
 PUTBASIC "src/POLY1.bas","POLY1"

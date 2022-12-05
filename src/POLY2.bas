@@ -2,11 +2,11 @@ REM Polymer Picker loader
 REM by Stephen Scott (c) 2022
 REM Thanks to ChrisB, jms2, lurkio, TobyLobster and fizgog
 REM Hi to the Stardot community
-HIMEM=&2C00
+HIMEM=&2B00
 FORT%=&900 TO &AFF STEP4:!T%=0:NEXT
 PROCassemble:W%=plotshape:Q%=check
 *LOAD SPRITES
-PAGE=&1100:HIMEM=&2C00
+PAGE=&1100:HIMEM=&2B00
 CHAIN"Poly1":END
 DEFPROCassemble
 P%=&70
@@ -20,13 +20,13 @@ P%=&70
 .depth:EQUB 0\&78
 .notshape:EQUW 0\&79-7A \ unused
 .offset:EQUB 0\&7B
-.shapeloaddr:EQUD 0:EQUW 0:EQUW 0
-.shapehiaddr:EQUD 0:EQUW 0:EQUW 0
-.shapesize:EQUD 0:EQUW 0:EQUW 0
-.shapedepth:EQUD 0:EQUW 0:EQUW 0
+.shapeloaddr:EQUB 0:EQUD 0:EQUW 0:EQUW 0
+.shapehiaddr:EQUB 0:EQUD 0:EQUW 0:EQUW 0
+.shapesize:EQUB 0:EQUD 0:EQUW 0:EQUW 0
+.shapedepth:EQUB 0:EQUD 0:EQUW 0:EQUW 0
 ]
-shapes=&2C00
-FORI%=0TO7
+shapes=&2B00
+FORI%=0TO8
 READ filename$
 I%?shapeloaddr=shapes AND&FF
 I%?shapehiaddr=shapes DIV256
@@ -36,7 +36,7 @@ NEXT
 DATA LDIVER,12,16,RDIVER,12,16
 DATA LFISH,4,8,RFISH,4,8
 DATA LSHK,16,16,RSHK,16,16
-DATA DLFISH,4,8,DRFISH,4,8
+DATA DLFISH,4,8,DRFISH,4,8,FSHK,8,16
 rowhi=&D01
 FOR pass=0 TO 2 STEP 2
 P%=&900
