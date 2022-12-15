@@ -28,7 +28,7 @@ REM Write key definitions into &100
 FOR X%=0 TO 4
 X%?&100=k%(X%)
 NEXT:VDU26,12,21
-P%=&50:[OPT2:ldx#0:ldy#&1D:lda&4D00,X:sta&2B00,X:inx:bne&54:dec&56:dec&59:dey:bpl&54:rts:]
+P%=&50:[OPT2:ldx#0:ldy#&1C:lda&4C00,X:sta&2A00,X:inx:bne&54:dec&56:dec&59:dey:bpl&54:rts:]
 *TAPE
 A$="CALL&50"+CHR$13+"OLD"+CHR$13+"PAGE=&5000:GOTO1"+CHR$13
 A%=138:X%=0:FOR E%=1TOLENA$:Y%=ASCMID$(A$,E%,1):CALL&FFF4:NEXT
