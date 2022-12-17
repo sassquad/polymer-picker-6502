@@ -2,7 +2,7 @@ REM Polymer Picker loader
 REM by Stephen Scott (c) 2022
 REM Thanks to ChrisB, jms2, lurkio, TobyLobster and fizgog
 REM Hi to the Stardot community
-HIMEM=&2C00
+HIMEM=&2B00
 PROCinit:PROCchars
 PROCenv
 PRINTTAB(5,30)"  Press SPACEBAR to continue  ":*FX15
@@ -28,7 +28,7 @@ REM Write key definitions into &100
 FOR X%=0 TO 4
 X%?&100=k%(X%)
 NEXT:VDU26,12,21
-P%=&50:[OPT2:ldx#0:ldy#&1D:lda&4D00,X:sta&2B00,X:inx:bne&54:dec&56:dec&59:dey:bpl&54:rts:]
+P%=&50:[OPT2:ldx#0:ldy#&1C:lda&4C00,X:sta&2A00,X:inx:bne&54:dec&56:dec&59:dey:bpl&54:rts:]
 *TAPE
 A$="CALL&50"+CHR$13+"OLD"+CHR$13+"PAGE=&5000:GOTO1"+CHR$13
 A%=138:X%=0:FOR E%=1TOLENA$:Y%=ASCMID$(A$,E%,1):CALL&FFF4:NEXT
@@ -141,6 +141,8 @@ REM oxygen tank
 VDU23,237,0,0,120,-3,-1,-4,120,0
 REM heart
 VDU23,238,108,-2,-2,-2,-2,124,56,16
+REM bleed
+VDU23,239,0,4,32,0,17,4,0,64
 REM fish
 VDU23,241,16,24,188,-5,-2,188,24,8
 ENDPROC

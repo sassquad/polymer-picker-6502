@@ -8,7 +8,7 @@ FOR A%=0 TO31
 A%?&D01=(&3000+A%*640)DIV256
 NEXT
 
-HIMEM=&2C00
+HIMEM=&2B00
 VDU6
 RESTORE:REM without this we read data from POLY3!
 PROCvdu:B$=A$
@@ -50,6 +50,16 @@ NEXT
 h%(1)=75000
 DATASTEVE,NUNI,ANDON,EDORA,GRAEME,EWOK,ROCKY,ECCLES
 
+REM let's see what we have to work with
+REM PRINT "HIMEM=&";~HIMEM
+REM PRINT "TOP=&";~TOP
+REM PRINT "LOMEM=&";~LOMEM
+REM PRINT "VARTOP=&";~(!2 AND&FFFF)
+REM PRINT "Program takes ";(TOP-&E00);" bytes"
+REM PRINT "Variables take ";((!2 AND&FFFF)-LOMEM);" bytes"
+REM PRINT (HIMEM-(!2 AND&FFFF));" bytes free"
+REM IFGET
+REM and we're go!
 PAGE=&E00
 GOTO1
 
