@@ -43,7 +43,6 @@ P%=&900
 [OPT pass
 .plotshape
 PHA
-
 \getaddr
 TYA
 AND #7:EOR #7:STA tmpa+1
@@ -66,7 +65,6 @@ STA addr
 BCC skip3
 INY
 .skip3 STY addr+1
-
 PLA:TAY
 LDA shapeloaddr,Y:STA shape+1
 LDA shapehiaddr,Y:STA shape+2

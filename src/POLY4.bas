@@ -51,14 +51,14 @@ h%(1)=75000
 DATASTEVE,NUNI,ANDON,EDORA,GRAEME,EWOK,ROCKY,ECCLES
 
 REM let's see what we have to work with
-PRINT "HIMEM=&";~HIMEM
-PRINT "TOP=&";~TOP
-PRINT "LOMEM=&";~LOMEM
-PRINT "VARTOP=&";~(!2 AND&FFFF)
-PRINT "Program takes ";(TOP-&E00);" bytes"
-PRINT "Variables take ";((!2 AND&FFFF)-LOMEM);" bytes"
-PRINT (HIMEM-(!2 AND&FFFF));" bytes free"
-IFGET
+REM PRINT "HIMEM=&";~HIMEM
+REM PRINT "TOP=&";~TOP
+REM PRINT "LOMEM=&";~LOMEM
+REM PRINT "VARTOP=&";~(!2 AND&FFFF)
+REM PRINT "Program takes ";(TOP-&E00);" bytes"
+REM PRINT "Variables take ";((!2 AND&FFFF)-LOMEM);" bytes"
+REM PRINT (HIMEM-(!2 AND&FFFF));" bytes free"
+REM IFGET
 REM and we're go!
 PAGE=&E00
 GOTO1
