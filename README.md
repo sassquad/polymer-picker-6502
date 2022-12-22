@@ -23,7 +23,7 @@ The current latest version can be played online. You'll need a desktop/laptop co
 
 ## How did this game come about?
 
-Work on this game started in September 2021, and is at release candidate status. Previous versions can be downloaded from the [game's dedicated Stardot thread](https://stardot.org.uk/forums/viewtopic.php?f=53&t=23615).
+Work on this game started in September 2021, and finished in December 2022. Previous versions can be downloaded from the [game's dedicated Stardot thread](https://stardot.org.uk/forums/viewtopic.php?f=53&t=23615).
 
 <img src="polymer-picker-1.png" alt="Image of Polymer Picker" width="450" />
 
