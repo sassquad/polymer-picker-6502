@@ -1,7 +1,7 @@
 # Polymer Picker (BBC Basic/Assembler version)
 A BBC Basic and Assembler version of the Polymer Picker game.
 
-[Play online](https://bbc.godbolt.org/?disc=https://www.sassquad.net/downloads/polymer-picker/polymer-picker-assembly.ssd&autoboot)
+[Play online](https://bbc.godbolt.org/?disc=https://www.sassquad.net/downloads/polymer-picker/polymer-picker-assembly.ssd&autoboot) or [watch a playthrough video](https://youtu.be/andCxDNpfJA).
 
 ## About the game
 
@@ -21,9 +21,13 @@ The current latest version can be played online. You'll need a desktop/laptop co
 
 [Play online](https://bbc.godbolt.org/?disc=https://www.sassquad.net/downloads/polymer-picker/polymer-picker-assembly.ssd&autoboot)
 
+## Watch a playthrough video of the game
+
+[https://youtu.be/andCxDNpfJA](https://youtu.be/andCxDNpfJA)
+
 ## How did this game come about?
 
-Work on this game started in September 2021, and finished in December 2022. Previous versions can be downloaded from the [game's dedicated Stardot thread](https://stardot.org.uk/forums/viewtopic.php?f=53&t=23615).
+Work on started in September 2021. Version 1.0 was released in December 2022. Previous versions can be downloaded from the [game's dedicated Stardot thread](https://stardot.org.uk/forums/viewtopic.php?f=53&t=23615).
 
 <img src="polymer-picker-1.png" alt="Image of Polymer Picker" width="450" />
 
