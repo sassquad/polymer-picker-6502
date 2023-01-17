@@ -11,7 +11,7 @@ Each level contains 8 items to collect. You then proceed to the next level. The 
 
 As you progress, you have the ability to swim faster. This will consume more oxygen, however. When your airtank reaches about 50%, a spare tank will appear underneath your boat. Grab it to replenish your air. You only have one refill per level though, so use it sparingly!
 
-Cash is earned for each item of plastic collected. At the end of a level, a bonus is awarded for each fish that is left, in addition to any remaining air in your tank.
+Points are earned for each item of plastic collected. At the end of a level, a bonus is awarded for each fish that is left, in addition to any remaining air in your tank.
 
 If you run out of air, or all the fish die, then it's game over.
 
@@ -27,7 +27,7 @@ The current latest version can be played online. You'll need a desktop/laptop co
 
 ## How did this game come about?
 
-Work on started in September 2021. Version 1.0 was released in December 2022. Previous versions can be downloaded from the [game's dedicated Stardot thread](https://stardot.org.uk/forums/viewtopic.php?f=53&t=23615).
+The game was started in September 2021. Version 1.0 was released in December 2022. Previous versions can be downloaded from the [game's dedicated Stardot thread](https://stardot.org.uk/forums/viewtopic.php?f=53&t=23615).
 
 <img src="polymer-picker-1.png" alt="Image of Polymer Picker" width="450" />
 
