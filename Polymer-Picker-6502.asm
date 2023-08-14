@@ -14,6 +14,7 @@ INCBIN "src/RSHK.bin"
 INCBIN "src/DLFISH.bin"
 INCBIN "src/DRFISH.bin"
 INCBIN "src/FSHK.bin"
+INCBIN "src/JELLY.bin"
 .end
 SAVE "SPRITES",start,end
 PUTBASIC "src/POLY1.bas","POLY1"

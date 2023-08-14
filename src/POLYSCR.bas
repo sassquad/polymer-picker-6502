@@ -4,7 +4,7 @@ REM Thanks to ChrisB, jms2, lurkio, TobyLobster and fizgog
 REM Hi to the Stardot community
 HIMEM=&1800
 A%=133:X%=0:IFUSR(&FFF4)AND&800000:*FX114,1
-*FX200,1
+REM*FX200,1
 MODE1:VDU23;8202;0;0;0;19,1,0;0;19,2,0;0;19,3,0;0;
 *FX19
 *FX154,156

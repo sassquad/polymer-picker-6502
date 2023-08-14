@@ -20,76 +20,45 @@ P%=&70
 .depth:EQUB 0\&78
 .notshape:EQUW 0\&79-7A \ unused
 .offset:EQUB 0\&7B
-.shapeloaddr:EQUB 0:EQUD 0:EQUW 0:EQUW 0
-.shapehiaddr:EQUB 0:EQUD 0:EQUW 0:EQUW 0
-.shapesize:EQUB 0:EQUD 0:EQUW 0:EQUW 0
-.shapedepth:EQUB 0:EQUD 0:EQUW 0:EQUW 0
 ]
-shapes=&2B00
-FORI%=0TO8
-READ filename$
-I%?shapeloaddr=shapes AND&FF
-I%?shapehiaddr=shapes DIV256
-READ I%?shapesize,I%?shapedepth
-shapes=shapes+I%?shapedepth*I%?shapesize
-NEXT
-DATA LDIVER,12,16,RDIVER,12,16
-DATA LFISH,4,8,RFISH,4,8
-DATA LSHK,16,16,RSHK,16,16
-DATA DLFISH,4,8,DRFISH,4,8,FSHK,8,16
 rowhi=&D01
-FOR pass=0 TO 2 STEP 2
-P%=&900
-[OPT pass
+FORT%=0TO2STEP2:P%=&900:[OPT T%
 .plotshape
 PHA
 \getaddr
-TYA
-AND #7:EOR #7:STA tmpa+1
-TYA:EOR #&F8
-LSR A:LSR A:LSR A
-TAY
-LSR A:LDA #0:ROR A
-STA tmpb+1
-LDA rowhi,Y
-TAY
-TXA
-ASL A:ASL A
-BCC skip1
-INY:INY
+TYA:AND #7:EOR #7:STA tmpa+1
+TYA:EOR #&F8:LSR A:LSR A:LSR A
+TAY:LSR A:LDA #0:ROR A:STA tmpb+1
+LDA rowhi,Y:TAY:TXA:ASL A:ASL A
+BCC skip1:INY:INY
 .skip1 ASL A:BCC skip2:INY
 .skip2 CLC
 .tmpb ADC #&EE
 .tmpa ORA #&EE
-STA addr
-BCC skip3
-INY
-.skip3 STY addr+1
-PLA:TAY
+STA addr:BCC skip3:INY
+.skip3 STY addr+1:PLA:TAY
 LDA shapeloaddr,Y:STA shape+1
 LDA shapehiaddr,Y:STA shape+2
 LDA shapesize,Y:STA counter
 LDA shapedepth,Y:STA depth
 .label
-LDY #&00:LDA addr+1:PHA:LDA addr:PHA
-LDA depth:STA rowcounter+1:LDA addr:TAX:AND #&07
-TAY:TXA:AND #&F8:STA addr
-LDX #0
+LDY #0:LDA addr+1:PHA:LDA addr:PHA
+LDA depth:STA rowcounter+1:LDA addr:TAX:AND #7
+TAY:TXA:AND #&F8:STA addr:LDX #0
 .innerloop
-.shape LDA &EEEE,X:inx
-EOR (addr),Y:STA (addr),Y:INY
-CPY #&08:BEQ block
+.shape LDA &EEEE,X:INX:EOR (addr),Y:STA (addr),Y:INY
+CPY #8:BEQ block
 .noblock
 .rowcounter CPX #&EE:BNE innerloop
 .nextblock
 LDA shape+1:CLC:ADC depth:STA shape+1:BCC nohi:INC shape+2
 .nohi
-CLC:PLA:ADC #&08:STA addr:PLA:ADC #&00
+CLC:PLA:ADC #&08:STA addr:PLA:ADC #0
 STA addr+1:DEC counter:BNE label
 RTS
 .block
-LDY #&00:LDA addr:CLC:ADC #&80:STA addr
-LDA addr+1:ADC #&02:BPL noboundary:SEC:SBC #&50
+LDY #0:LDA addr:CLC:ADC #&80:STA addr
+LDA addr+1:ADC #2:BPL noboundary:SEC:SBC #&50
 .noboundary
 STA addr+1:BNE noblock
 .check
@@ -103,6 +72,14 @@ SEC:SBC #8\BH%:CMP &AB1:BCC checkfinish\BY>CY - inverted check
 DEY:BPL checkloop
 .checkfinish
 STY &AB2:RTS
+.shapeloaddr:EQUD 0:EQUD 0:EQUW 0
+.shapehiaddr:EQUD 0:EQUD 0:EQUW 0
+.shapesize:EQUD 0:EQUD 0:EQUW 0
+.shapedepth:EQUD 0:EQUD 0:EQUW 0
 ]
-NEXTpass
+NEXTT%
+shapes=&2B00
+FORI%=0TO9:READ filename$:I%?shapeloaddr=shapes AND&FF:I%?shapehiaddr=shapes DIV256
+READ I%?shapesize,I%?shapedepth:shapes=shapes+I%?shapedepth*I%?shapesize:NEXT
+DATA LDIVER,12,16,RDIVER,12,16,LFISH,4,8,RFISH,4,8,LSHK,16,16,RSHK,16,16,DLFISH,4,8,DRFISH,4,8,FSHK,8,16,JELLY,8,16
 ENDPROC
