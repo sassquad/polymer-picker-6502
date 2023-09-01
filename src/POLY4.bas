@@ -28,7 +28,7 @@ PROCvdu:REM leave the last one in A$
 DATA5,18,0,14,25,4,920,40,0,25,4,1216,40,0,25,85,920,52,0,25,85,1216,52,0,-1
 J$="Polymer Pickers Hall of Fame":K$="Please enter your name:":L$="Press SPACEBAR to play":M$="GAME  OVER":N$="GET READY!":O$="UH OH....!":P$="OHHH NO!!!"
 N%=RND(-TIME):S%=0
-k%=&AB8:n%=&AC0:q%=&AC8:t%=&AD0:F%=&AD8:G%=&AE0:J%=&AE8:U%=&AF0:zz%=&AF4
+k%=&AB8:n%=&AC0:q%=&AC8:t%=&AD0:F%=&AD8:G%=&AE0:J%=&AE8:U%=&AF0:zz%=&AF4:jv%=&AF8
 REM high scores
 DIMh%(8),h$(8):FORT%=1TO8
 h$(T%)=STRING$(14," "):REM preallocate space to avoid memory allocation failures later

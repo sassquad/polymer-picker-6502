@@ -63,9 +63,9 @@ VDU31,4,22,129,157,135:PRINT;"PRESS SPACEBAR TO CONTINUE  ";:VDU156,28,0,21,39,6
 REPEATUNTILGET=32:CLS
 PRINT''" You have a limited air supply, which"
 PRINT "decreases more quickly if you swim"
-PRINT "faster. A spare tank will appear under"
+PRINT "faster. Spare tanks will appear under"
 PRINT "your boat when your remaining air"
-PRINT "reaches 50%. Use it wisely!"
+PRINT "reaches 50%."
 PRINT''" Try to avoid the shark, it will"
 PRINT "bite you, which reduces your air. The"
 PRINT "jellyfish also have quite a sting!"
