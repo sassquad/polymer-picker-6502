@@ -32,18 +32,8 @@ k%=&AB8:n%=&AC0:q%=&AC8:t%=&AD0:F%=&AD8:G%=&AE0:J%=&AE8:U%=&AF0:zz%=&AF4:jv%=&AF
 REM high scores
 DIMh%(8),h$(8):FORT%=1TO8
 h$(T%)=STRING$(14," "):REM preallocate space to avoid memory allocation failures later
-h%(T%)=(9-T%)*500:READh$(T%):NEXT:h%(1)=75000
-DATASTEVE,NUNI,ANDON,EDORA,GRAEME,EWOK,ROCKY,ECCLES
-REM let's see what we have to work with
-REM PRINT "HIMEM=&";~HIMEM
-REM PRINT "TOP=&";~TOP
-REM PRINT "LOMEM=&";~LOMEM
-REM PRINT "VARTOP=&";~(!2 AND&FFFF)
-REM PRINT "Program takes ";(TOP-&E00);" bytes"
-REM PRINT "Variables take ";((!2 AND&FFFF)-LOMEM);" bytes"
-REM PRINT (HIMEM-(!2 AND&FFFF));" bytes free"
-REM IFGET
-REM and we're go!
+h%(T%)=(9-T%)*500:READh$(T%):NEXT:h%(1)=50000
+DATANUNI,ANDON,EDORA,GRAEME,EWOK,ROCKY,STEVE,ECCLES
 PAGE=&E00
 GOTO1
 DEFPROCvdu:A$=""
