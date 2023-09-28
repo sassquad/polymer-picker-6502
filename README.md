@@ -1,15 +1,17 @@
 # Polymer Picker (BBC Basic/Assembler version)
 A BBC Basic and Assembler version of the Polymer Picker game.
 
-[Play online](https://bbc.godbolt.org/?disc=https://www.sassquad.net/downloads/polymer-picker/polymer-picker-assembly.ssd&autoboot) or [watch a playthrough video](https://youtu.be/andCxDNpfJA).
+[Play online](https://bbc.godbolt.org/?disc=https://www.sassquad.net/downloads/polymer-picker/polymer-picker-assembly.ssd&autoboot) or [watch a playthrough video](https://youtu.be/hrgzWWyr84Y).
 
 ## About the game
 
+<img src="polymer-picker-day.png" alt="Image of Polymer Picker" width="450" />
+
 Your local coastline has become polluted with discarded plastic, which is harming the aquatic wildlife. Dive in, and collect the rubbish, before the fish consume it and die.
 
-Each level contains 8 items to collect. You then proceed to the next level. The fish are initially harmless, but later levels require you to avoid the fish if you can, or they may injure you. Then of course, there's the sharks to contend with.
+Each level contains 8 items to collect. You then proceed to the next level. The fish are initially harmless, but later levels require you to avoid the fish if you can, or they may injure you. The jellyfish are a constant menance, their sting will hurt you. Then of course, there's the sharks to contend with.
 
-As you progress, you have the ability to swim faster. This will consume more oxygen, however. When your airtank reaches about 50%, a spare tank will appear underneath your boat. Grab it to replenish your air. You only have one refill per level though, so use it sparingly!
+As you progress, you have the ability to swim faster. This will consume more oxygen, however. When your airtank reaches about 50%, a spare tank will appear underneath your boat. Grab it to replenish your air. 
 
 Points are earned for each item of plastic collected. At the end of a level, a bonus is awarded for each fish that is left, in addition to any remaining air in your tank.
 
@@ -23,13 +25,15 @@ The current latest version can be played online. You'll need a desktop/laptop co
 
 ## Watch a playthrough video of the game
 
-[https://youtu.be/andCxDNpfJA](https://youtu.be/andCxDNpfJA)
+[https://youtu.be/andCxDNpfJA](https://youtu.be/hrgzWWyr84Y)
 
 ## How did this game come about?
 
-The game was started in September 2021. Version 1.0 was released in December 2022. Previous versions can be downloaded from the [game's dedicated Stardot thread](https://stardot.org.uk/forums/viewtopic.php?f=53&t=23615).
+The game was started in September 2021 and initially released in December 2022. A new edition was released in September 2023 to include jellyfish as an added hazard, along with some other tweaks. Previous versions can be downloaded from the [game's dedicated Stardot thread](https://stardot.org.uk/forums/viewtopic.php?f=53&t=23615).
 
-<img src="polymer-picker-1.png" alt="Image of Polymer Picker" width="450" />
+<img src="polymer-picker-eve.png" alt="Image of Polymer Picker" width="450" />
+
+<img src="polymer-picker-night.png" alt="Image of Polymer Picker" width="450" />
 
 ## How to build from source
 
@@ -57,7 +61,7 @@ PUTBASIC "src/POLYSCR.bas","POLYSCR"
 PUTFILE "src/PPBY.bin","PPBY",&FF1800,&FF1800
 PUTFILE "src/PPSCR.bin","PPSCR",&FF3000,&FF3000
 PUTBASIC "src/POLY2.bas","POLY2"
-ORG &2A00
+ORG &2B00
 .start
 INCBIN "src/LDIVER.bin"
 INCBIN "src/RDIVER.bin"
@@ -67,6 +71,8 @@ INCBIN "src/LSHK.bin"
 INCBIN "src/RSHK.bin"
 INCBIN "src/DLFISH.bin"
 INCBIN "src/DRFISH.bin"
+INCBIN "src/FSHK.bin"
+INCBIN "src/JELLY.bin"
 .end
 SAVE "SPRITES",start,end
 PUTBASIC "src/POLY1.bas","POLY1"
