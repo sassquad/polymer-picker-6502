@@ -9,7 +9,7 @@ A BBC Basic and Assembler version of the Polymer Picker game.
 
 Your local coastline has become polluted with discarded plastic, which is harming the aquatic wildlife. Dive in, and collect the rubbish, before the fish consume it and die.
 
-Each level contains 8 items to collect. You then proceed to the next level. The fish are initially harmless, but later levels require you to avoid the fish if you can, or they may injure you. The jellyfish are a constant menance, their sting will hurt you. Then of course, there's the sharks to contend with.
+Each level contains 8 items to collect. You then proceed to the next level. The fish are initially harmless, but later levels require you to avoid the fish if you can, or they may injure you. The jellyfish are a constant menace, their sting will hurt you. Then of course, there's the sharks to contend with.
 
 As you progress, you have the ability to swim faster. This will consume more oxygen, however. When your airtank reaches about 50%, a spare tank will appear underneath your boat. Grab it to replenish your air. 
 
@@ -127,6 +127,6 @@ The following people within the Stardot community were very helpful in my endeav
 * fizgog - for some later playtesting, discovering of memory leaks, and high score table breakages.
 * hexwab - for some invaluable efforts (described above) that have improved the loading sequence, and sprite routine for faster gameplay, as well as freeing up extra memory.
 
-Special mention to Colin Hoad and Richard Toohey for your comments on the game.
+Special mention to Colin Hoad, Richard Toohey for your comments on the game, and to David Edwards of [Every Game Going](https://www.everygamegoing.com) for his [review of the original release](https://www.everygamegoing.com/larticle/polymer-picker/59205), whose suggestion of adding jellyfish to enhance the gameplay gave me the push needed to add it in.
 
 Thanks for reading. I hope you enjoy what you find. All feedback is welcome!
