@@ -19,14 +19,14 @@ DATA18,3,6,25,4,612,850,237,0,-1
 PROCvdu:F$=A$
 DATA23,0,8202,0,0,0,0,0,0,-1
 PROCvdu:G$=A$
-DATA4,17,128,31,5,15,32,32,32,32,32,32,32,32,32,32,20,19,0,4,0,0,0,19,15,0,0,0,0,19,14,6,0,0,0,5,-1
+DATA4,17,128,31,5,15,32,32,32,32,32,32,32,32,32,32,20,19,9,7,0,0,0,0,19,0,4,0,0,0,19,10,8,0,0,0,19,11,15,0,0,0,19,15,0,0,0,0,19,14,6,0,0,0,5,-1
 PROCvdu:H$=A$
 DATA19,14,7,0,0,0,17,14,31,5,15,-1
 PROCvdu:I$=A$
 DATA4,17,3,31,0,27,242,243,244,245,246,247,246,245,244,243,242,243,244,245,246,247,246,245,244,243,247,246,245,244,243,242,243,244,245,246,247,246,245,244,243,242,243,244,245,246,5,-1
 PROCvdu:REM leave the last one in A$
 DATA5,18,0,14,25,4,920,40,0,25,4,1216,40,0,25,85,920,52,0,25,85,1216,52,0,-1
-J$="Polymer Pickers Hall of Fame":K$="Please enter your name:":L$="Press SPACEBAR to play":M$="GAME  OVER":N$="GET READY!":O$="UH OH....!":P$="OHHH NO!!!"
+J$="Polymer Pickers Hall of Fame":K$="Please enter your name":L$="Press SPACEBAR to play":M$="GAME  OVER":N$="GET READY!":O$="UH OH....!":P$="OHHH NO!!!"
 N%=RND(-TIME):S%=0
 k%=&AB8:n%=&AC0:q%=&AC8:t%=&AD0:F%=&AD8:G%=&AE0:J%=&AE8:U%=&AF0:zz%=&AF4:jv%=&AF8
 REM high scores
