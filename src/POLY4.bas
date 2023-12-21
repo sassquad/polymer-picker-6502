@@ -26,14 +26,14 @@ PROCvdu:I$=A$
 DATA4,17,3,31,0,27,242,243,244,245,246,247,246,245,244,243,242,243,244,245,246,247,246,245,244,243,247,246,245,244,243,242,243,244,245,246,247,246,245,244,243,242,243,244,245,246,5,-1
 PROCvdu:REM leave the last one in A$
 DATA5,18,0,14,25,4,920,40,0,25,4,1216,40,0,25,85,920,52,0,25,85,1216,52,0,-1
-J$="Polymer Pickers Hall of Fame":K$="Please enter your name":L$="Press SPACEBAR to play":M$="GAME  OVER":N$="GET READY!":O$="UH OH....!":P$="OHHH NO!!!"
+J$="Polymer Picking Grotto of Fame":K$="Please enter your name":L$="Press SPACEBAR to play":M$="GAME  OVER":N$="GET READY!":O$="UH OH....!":P$="OHHH NO!!!"
 N%=RND(-TIME):S%=0
 k%=&AB8:n%=&AC0:q%=&AC8:t%=&AD0:F%=&AD8:G%=&AE0:J%=&AE8:U%=&AF0:zz%=&AF4:jv%=&AF8
 REM high scores
 DIMh%(8),h$(8):FORT%=1TO8
 h$(T%)=STRING$(14," "):REM preallocate space to avoid memory allocation failures later
 h%(T%)=(9-T%)*500:READh$(T%):NEXT:h%(1)=50000
-DATANUNI,ANDON,EDORA,GRAEME,EWOK,ROCKY,STEVE,ECCLES
+DATADASHER,DANCER,PRANCER,VIXEN,COMET,CUPID,DONNER,BLIXEN
 PAGE=&E00
 GOTO1
 DEFPROCvdu:A$=""

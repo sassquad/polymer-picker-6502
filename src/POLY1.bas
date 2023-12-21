@@ -46,14 +46,14 @@ VDU26,31,2,22,129,157,135:PRINT;"OR PRESS SPACEBAR TO PLAY GAME  ";:VDU156,28,0,
 *FX15
 ENDPROC
 DEFPROCinstruct
-PROCcntr(1,6,1,"Polymer Picker v1.1")
+PROCcntr(1,6,1,"Polymer Picker v1.11xmas")
 PROCcntr(0,6,1,"Written by Stephen Scott (c) 2023")
 PROCcntr(0,6,2,"w: sassquad.net / t: @sassquad")
-PRINT''" Your local tropical bay is polluted"
-PRINT "with discarded plastic. Your job is to"
-PRINT "try and clean it up. Swim and collect"
-PRINT "the junk, before the local sealife eats"
-PRINT "it and dies!"
+PRINT''" The Arctic Ocean is polluted with"
+PRINT "discarded Christmas plastic. Your job"
+PRINT "is to try and clean it up. Swim and"
+PRINT "collect the festive junk before the"
+PRINT "local sealife eat them and perish!"
 PRINT''" To collect an item, move until your"
 PRINT "hand is touching it. The item will then"
 PRINT "be collected. All items are white"
@@ -74,11 +74,11 @@ REPEATUNTILGET=32:CLS
 PRINT''" Once you have collected all the junk"
 PRINT "you will proceed to the next bay."
 PRINT "Bonus points are awarded for each fish"
-PRINT "remaining alive, in addition to any"
-PRINT "air left in your tank."
+PRINT "left alive, plus any air left."
 PRINT''" As you progress, fish on later levels"
 PRINT "will hurt you, and... well, let's just"
-PRINT "say Nature is cruel!"
+PRINT "say Nature in the Arctic is cruel!"
+PRINT''" Good luck, and Merry Christmas!"
 *FX15
 REPEATUNTILGET=32:CLS
 PRINT''" Controls:"
@@ -124,7 +124,7 @@ VDU23,250,0,102,102,255,255,255,255,0
 VDU23,251,24,24,126,90,24,36,36,102
 ENDPROC
 DEFPROCenv
-ENVELOPE1,1,0,0,0,50,25,25,127,-1,-1,-1,126,90
+ENVELOPE1,1,0,0,0,30,25,25,127,-1,-1,-1,126,90
 ENVELOPE2,3,-1,0,0,246,0,0,0,0,-1,-3,120,120
 ENVELOPE3,5,15,0,0,72,0,0,-6,127,0,-9,0,126
 ENVELOPE4,129,0,-10,-1,1,0,2,6,-1,0,-1,126,74
@@ -145,7 +145,7 @@ NEXT
 UNTIL K%<>255 AND K%<>112 AND G%=TRUE
 =K%
 DEFPROCredefine:S%=FALSE:VDU26,12
-PROCcntr(1,6,1,"Polymer Picker v1.1")
+PROCcntr(1,6,1,"Polymer Picker v1.11xmas")
 PROCcntr(0,6,1,"Written by Stephen Scott (c) 2023")
 PROCcntr(0,6,2,"w: sassquad.net / t: @sassquad")
 VDU28,0,21,39,6
