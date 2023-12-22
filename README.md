@@ -1,13 +1,13 @@
-# Polymer Picker (BBC Basic/Assembler version)
-A BBC Basic and Assembler version of the Polymer Picker game.
+# Polymer Picker Christmas edition (BBC Basic/Assembler version)
+A BBC Basic and Assembler festive version of the Polymer Picker game.
 
-[Play online](https://bbc.godbolt.org/?disc=https://www.sassquad.net/downloads/polymer-picker/polymer-picker-assembly.ssd&autoboot) or [watch a playthrough video](https://youtu.be/hrgzWWyr84Y).
+[Play online](https://bbc.godbolt.org/?disc=https://www.sassquad.net/downloads/polymer-picker/polymer-picker-assembly-v1-11xmas.ssd&autoboot) or [watch a playthrough video](https://youtu.be/hrgzWWyr84Y).
 
 ## About the game
 
 <img src="polymer-picker-day.png" alt="Image of Polymer Picker" width="450" />
 
-Your local coastline has become polluted with discarded plastic, which is harming the aquatic wildlife. Dive in, and collect the rubbish, before the fish consume it and die.
+The Arctic has become polluted with discarded plastic, which is harming the aquatic wildlife. Dive in, and collect the rubbish, before the fish consume it and die.
 
 Each level contains 8 items to collect. You then proceed to the next level. The fish are initially harmless, but later levels require you to avoid the fish if you can, or they may injure you. The jellyfish are a constant menace, their sting will hurt you. Then of course, there's the sharks to contend with.
 
@@ -21,7 +21,7 @@ If you run out of air, or all the fish die, then it's game over.
 
 The current latest version can be played online. You'll need a desktop/laptop computer or a tablet with a keyboard to play this.
 
-[Play online](https://bbc.godbolt.org/?disc=https://www.sassquad.net/downloads/polymer-picker/polymer-picker-assembly.ssd&autoboot)
+[Play online](https://bbc.godbolt.org/?disc=https://www.sassquad.net/downloads/polymer-picker/polymer-picker-assembly-v1-11xmas.ssd&autoboot)
 
 ## Watch a playthrough video of the game
 
@@ -29,7 +29,7 @@ The current latest version can be played online. You'll need a desktop/laptop co
 
 ## How did this game come about?
 
-The game was started in September 2021 and initially released in December 2022. A new edition was released in September 2023 to include jellyfish as an added hazard, along with some other tweaks. Previous versions can be downloaded from the [game's dedicated Stardot thread](https://stardot.org.uk/forums/viewtopic.php?f=53&t=23615).
+The game was started in September 2021 and initially released in December 2022. A new Christmas edition was released in December 2023 to reskin the graphics and music accordingly, along with some other tweaks. Previous versions can be downloaded from the [game's dedicated Stardot thread](https://stardot.org.uk/forums/viewtopic.php?f=53&t=23615).
 
 <img src="polymer-picker-eve.png" alt="Image of Polymer Picker" width="450" />
 
