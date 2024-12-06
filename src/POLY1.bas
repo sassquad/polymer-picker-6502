@@ -33,9 +33,10 @@ A%=138:X%=0:FOR E%=1TOLENA$:Y%=ASCMID$(A$,E%,1):CALL&FFF4:NEXT
 PAGE=&E00:END
 ENDPROC
 DEFPROCask
-PROCcntr(1,6,1,"Polymer Picker v1.1")
-PROCcntr(0,6,1,"Written by Stephen Scott (c) 2023")
-PROCcntr(0,6,2,"w: sassquad.net / t: @sassquad")
+PROCcntr(1,10,1,"Polymer Picker v1.12")
+PROCcntr(0,6,1,"Written by Stephen Scott (c) 2024")
+PROCcntr(0,12,2,"www.sassquad.net")
+PROCcntr(0,9,3,"Bluesky: @sassquad.net")
 PROCcntr(0,3,5,"with the grateful assistance of")
 PROCcntr(0,3,6,"Stardot community forum members")
 PROCcntr(0,3,7,"ChrisB, jms2, lurkio, TobyLobster,")
@@ -46,9 +47,10 @@ VDU26,31,2,22,129,157,135:PRINT;"OR PRESS SPACEBAR TO PLAY GAME  ";:VDU156,28,0,
 *FX15
 ENDPROC
 DEFPROCinstruct
-PROCcntr(1,6,1,"Polymer Picker v1.1")
-PROCcntr(0,6,1,"Written by Stephen Scott (c) 2023")
-PROCcntr(0,6,2,"w: sassquad.net / t: @sassquad")
+PROCcntr(1,10,1,"Polymer Picker v1.12")
+PROCcntr(0,6,1,"Written by Stephen Scott (c) 2024")
+PROCcntr(0,12,2,"www.sassquad.net")
+PROCcntr(0,9,3,"Bluesky: @sassquad.net")
 PRINT''" Your local tropical bay is polluted"
 PRINT "with discarded plastic. Your job is to"
 PRINT "try and clean it up. Swim and collect"
@@ -74,8 +76,7 @@ REPEATUNTILGET=32:CLS
 PRINT''" Once you have collected all the junk"
 PRINT "you will proceed to the next bay."
 PRINT "Bonus points are awarded for each fish"
-PRINT "remaining alive, in addition to any"
-PRINT "air left in your tank."
+PRINT "left alive, plus any air left."
 PRINT''" As you progress, fish on later levels"
 PRINT "will hurt you, and... well, let's just"
 PRINT "say Nature is cruel!"
@@ -144,9 +145,10 @@ NEXT
 UNTIL K%<>255 AND K%<>112 AND G%=TRUE
 =K%
 DEFPROCredefine:S%=FALSE:VDU26,12
-PROCcntr(1,6,1,"Polymer Picker v1.1")
-PROCcntr(0,6,1,"Written by Stephen Scott (c) 2023")
-PROCcntr(0,6,2,"w: sassquad.net / t: @sassquad")
+PROCcntr(1,10,1,"Polymer Picker v1.12")
+PROCcntr(0,6,1,"Written by Stephen Scott (c) 2024")
+PROCcntr(0,12,2,"www.sassquad.net")
+PROCcntr(0,9,3,"Bluesky: @sassquad.net")
 VDU28,0,21,39,6
 REPEAT:VDU12:PRINT''"Enter your preferred gameplay keys."
 PRINT'"Note that S,Q,P and U are reserved."
