@@ -23,7 +23,7 @@ DEFPROCstart
 REM Write key definitions into &100
 FOR X%=0 TO 4
 X%?&100=k%(X%)
-NEXT:VDU26,12,21
+NEXT:VDU26,12
 PAGE=&1D00
 CHAIN"POLY3"
 ENDPROC

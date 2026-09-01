@@ -100,6 +100,20 @@ ORG &0E00
 .gd_over
     EQUB 53,5,41,10,53,10,73,15,41,5,33,10,53,10,69,20
 
+; UI strings, length-prefixed. Held here for the same reason as the tables:
+; as BASIC they would cost twice - once as program literals, again as heap -
+; and BASIC's memory is what ran out.
+;   &0EF8 +0 "GET READY!"  +11 "UH OH....!"  +22 "OHHH NO!!!"  +33 "GAME  OVER"
+;         +44 hall-of-fame title  +73 name prompt  +97 play prompt
+.gd_str
+    EQUB 10 : EQUS "GET READY!"
+    EQUB 10 : EQUS "UH OH....!"
+    EQUB 10 : EQUS "OHHH NO!!!"
+    EQUB 10 : EQUS "GAME  OVER"
+    EQUB 28 : EQUS "Polymer Pickers Hall of Fame"
+    EQUB 23 : EQUS "Please enter your name:"
+    EQUB 22 : EQUS "Press SPACEBAR to play"
+
 .engine_start
     JSR save_zp             ; ABI: preserve BASIC's zero page &00-&6F
 
@@ -257,20 +271,10 @@ ORG &0E00
     LDA #19                 ; frame lock: wait for vertical sync (50 Hz)
     JSR osbyte
 
-    JSR check_exit          ; SPACE?  Z=1 if pressed
-    BNE not_space
-    JMP do_exit
-.not_space
-
     INC frame_count         ; safety limit
     BNE fc_nohi
     INC frame_count+1
 .fc_nohi
-    LDA frame_count+1
-    CMP #SAFETY_HI
-    BCC fc_ok
-    JMP do_exit
-.fc_ok
     LDA dbg_go              ; remote abort: poke &FF to end the run cleanly
     CMP #&FF
     BNE go_ok
@@ -977,7 +981,7 @@ ORG &0E00
     PHA
     LDA #5   : JSR oswrch
     LDA #18  : JSR oswrch
-    LDA #3   : JSR oswrch
+    LDA vc_mode : JSR oswrch
     LDA var_tmpD : JSR oswrch
     LDA #25  : JSR oswrch
     LDA #4   : JSR oswrch
@@ -1044,18 +1048,6 @@ ORG &0E00
     LDA #&81
     JSR osbyte
     CPX #&FF                                ; pressed -> X=&FF -> Z=1
-    RTS
-
-
-; ----------------------------------------------------------------------------
-; check_exit - Z=1 if SPACE is held.
-; ----------------------------------------------------------------------------
-.check_exit
-    LDX #SPACE_INKEY
-    LDY #&FF
-    LDA #&81
-    JSR osbyte
-    CPX #&FF
     RTS
 
 
@@ -1236,12 +1228,12 @@ bar_tbl_len = 28
 ; bar_colour - A = physical colour for logical 14 (VDU19,14,A,0,0,0).
 ; ----------------------------------------------------------------------------
 .bar_colour
-    PHA
-    LDA #19 : JSR oswrch
-    LDA #14 : JSR oswrch
-    PLA : JSR oswrch
-    LDA #0 : JSR oswrch : LDA #0 : JSR oswrch : LDA #0 : JSR oswrch
-    RTS
+    STA bc_tbl+2
+    LDA #<bc_tbl : STA zp_ptr0
+    LDA #>bc_tbl : STA zp_ptr0+1
+    LDA #6
+    JMP vdu_seq
+.bc_tbl EQUB 19,14,0,0,0,0
 
 ; ============================================================================
 ; score_add - SED add BCD value A to var_score+X, rippling the carry.
@@ -1388,12 +1380,11 @@ pc_ftbl_len = 9
     ASL zp_ptr2 : ROL zp_ptr2+1
     LDA zp_ptr2   : CLC : ADC #40 : STA zp_ptr2
     LDA zp_ptr2+1 : ADC #0        : STA zp_ptr2+1
-    LDA #5  : JSR oswrch
-    LDA #18 : JSR oswrch : LDA #0 : JSR oswrch : LDA #1 : JSR oswrch
-    LDA #25 : JSR oswrch : LDA #4 : JSR oswrch
-    LDA zp_ptr1 : JSR oswrch : LDA zp_ptr1+1 : JSR oswrch
-    LDA zp_ptr2 : JSR oswrch : LDA zp_ptr2+1 : JSR oswrch
-    LDA #HEART_CHAR : JSR oswrch
+    LDA #0 : STA vc_mode                    ; plot, not EOR, for the heart
+    LDA #1 : STA var_tmpD
+    LDA #HEART_CHAR
+    JSR vdu_char
+    LDA #3 : STA vc_mode
     ; ~0.3s pause between hearts (original waits 15cs)
     LDX #15
 .lc_mwait
@@ -1532,6 +1523,7 @@ pc_ftbl_len = 9
 .snd_ptr        EQUW 0      ; play_snd_ptr parameter block pointer
 .lc_i           EQUB 0      ; level_clear loop index
 .lc_b           EQUB 0      ; level_clear bonus counter (pitch steps)
+.vc_mode        EQUB 3      ; GCOL mode used by vdu_char (3=EOR, 0=plot)
 .vs_count       EQUB 0      ; vdu_seq remaining bytes
 .vs_idx         EQUB 0      ; vdu_seq table index
 .ps_tbl         EQUB 4,17,7,31,7,0          ; print_score prefix: TAB(7,0)

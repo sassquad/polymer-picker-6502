@@ -440,6 +440,23 @@ BASIC version by swapping one `JSR` in:
    Hall of fame ported verbatim (PROCh/PROCN/PROCO/PROCP) reading the score
    from `var_score`; one new bug found and fixed - the score had to be zeroed
    at startup or the first hall of fame read cold RAM and demanded a name.
+   **Two integration bugs found by the author playing the wired-up chain:**
+   - *Blank screen after the instructions.* `PROCstart` ended `VDU26,12,21`,
+     and VDU 21 DISABLES the VDU driver. It existed only to hide the echo of
+     the keyboard-buffer commands the old relocation trick stuffed in; POLY4
+     re-enabled it with `VDU6` (its comment says so). With that trick gone the
+     21 just switched the screen off permanently. Removed, and POLY3 now
+     issues `VDU6` on entry as a guard.
+   - *"No room at line 41".* BASIC ran out of memory for variables and the
+     PROC stack. Fixed by moving the seven UI strings into the engine image at
+     `&0EF8` (length-prefixed): as BASIC they cost twice, once as program
+     literals and again as heap. Engine trimmed to end at exactly `&1D00`
+     (15 pages, matching the copier) by table-driving `bar_colour`, drawing
+     the bonus heart through `vdu_char` with a selectable GCOL mode, and
+     removing two pieces of M1 scaffolding that should never have shipped:
+     a ~4 minute safety frame limit that would have aborted real games, and a
+     SPACE-to-quit key the original never had. BASIC now has 714 bytes for
+     variables and stack.
 7. **M6 — Retune & reclaim.** Timebase finalised, constants rebalanced, size booked.
 
 ---
