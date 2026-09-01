@@ -409,6 +409,23 @@ BASIC version by swapping one `JSR` in:
      to the `&0C00` UDG page.
    - Verified: levels 1→2→3→4 with fresh scenery each time and the score
      accumulating across them (0 → 1850 → 4250 → 7100).
+   **Fidelity fixes from author side-by-side comparison with the original:**
+   - `PROCo` blacks all 16 logical colours before painting scenery and restores
+     them via `G$`, which contains a **`VDU 20`** (restore default palette)
+     before its specific overrides. Without it every sprite drawn in logical
+     1-7 rendered black.
+   - The seabed needed all of `B$;I$`, not just `I$`: `B$` fills rows 27-31
+     with logical 15 then overpaints 27-28 with logical 4, giving the sand its
+     backing and the HUD its black strip.
+   - Texture chars 242-247 are generated randomly at RUN TIME in POLY1, not
+     fixed art, and the strip uses a specific 40-character sequence.
+   - `PROCB` prints `D$` first, which selects background logical 15 for the HUD
+     row and prints the "Air" label - both were missing.
+   - **Spawn rule restored:** POLY3 line 1 gives `l%>6` fish AND shark, odd
+     levels fish only, even levels shark only (which is why PROCB's fish
+     counter is conditional). The engine spawned both on every level. Now
+     `var_active` = `dbg_features` masked by the level rule, and every
+     subsystem gate consults it.
    **Remaining:** wire into the real POLYSCR → POLY1 → engine chain (title,
    instructions, redefine-keys), hall-of-fame on game over, and delete the
    now-dead gameplay procedures from POLY3.

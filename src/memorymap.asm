@@ -124,7 +124,11 @@ var_hurt        = &26       ; M3: bite/sting counter (PROCu-lite; observability)
 var_rng         = &27       ; M3: 16-bit PRNG state  &27/&28
 var_gameover    = &29       ; M4: 0 = playing, 1 = out of air, 2 = fish gone
 var_hurtcd      = &2A       ; M4: ticks until the next 'ouch' may sound again
-;   &2B-&2F  spare
+var_active      = &2B       ; M5: dbg_features masked by the level's spawn rule
+                            ; (POLY3: l%>6 fish+shark, odd fish only, even shark
+                            ; only). Use this, NOT dbg_features, to gate a
+                            ; subsystem at init and per tick.
+;   &2C-&2F  spare
 
 ; --- Sea-bed critter (PROCl: crab char 228 / shrimp char 229) ---------- &30-&37
 ; NOTE: this is NOT the boat. The boat is static level furniture drawn once at

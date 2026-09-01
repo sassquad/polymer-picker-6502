@@ -126,6 +126,16 @@ ORG &0E00
     LDA #1 : STA dbg_level
 .lvl_ok
     STA var_level
+    ; effective subsystem mask = debug features AND the level's spawn rule
+    ; (POLY3 line 1: l%>6 -> fish AND shark, l% odd -> fish, l% even -> shark)
+    LDA dbg_features : STA var_active
+    LDA var_level : CMP #7 : BCS lr_done
+    LDA var_level : AND #1 : BEQ lr_even
+    LDA var_active : AND #&FB : STA var_active   ; odd level: no shark
+    JMP lr_done
+.lr_even
+    LDA var_active : AND #&FD : STA var_active   ; even level: no fish
+.lr_done
     LDA #8   : STA var_items_left   ; P%
     LDA #8   : STA var_fish_left    ; L%
     LDA #0   : STA var_hurt
@@ -184,16 +194,16 @@ ORG &0E00
     STA arr_item_y,Y
     DEY
     BPL clr_boxes
-    LDA dbg_features : AND #1 : BEQ no_items_init
+    LDA var_active : AND #1 : BEQ no_items_init
     JSR items_init
 .no_items_init
-    LDA dbg_features : AND #2 : BEQ no_fish_init
+    LDA var_active : AND #2 : BEQ no_fish_init
     JSR fish_init
 .no_fish_init
-    LDA dbg_features : AND #4 : BEQ no_shark_init
+    LDA var_active : AND #4 : BEQ no_shark_init
     JSR shark_init
 .no_shark_init
-    LDA dbg_features : AND #8 : BEQ no_jelly_init
+    LDA var_active : AND #8 : BEQ no_jelly_init
     JSR jelly_init
 .no_jelly_init
 
@@ -238,7 +248,7 @@ ORG &0E00
 
     ; jellies run EVERY frame (50Hz) with quarter-steps: same net speeds as
     ; the BASIC original's chunky jumps, but 4x smoother (author-requested)
-    LDA dbg_features : AND #8 : BEQ ml_nojelly
+    LDA var_active : AND #8 : BEQ ml_nojelly
     JSR jelly_tick
 .ml_nojelly
 
@@ -262,10 +272,10 @@ ORG &0E00
 
     JSR diver_update
     JSR air_check                   ; PROCD: time-gated air drain + tank spawn
-    LDA dbg_features : AND #2 : BEQ ml_nofish
+    LDA var_active : AND #2 : BEQ ml_nofish
     JSR fish_tick
 .ml_nofish
-    LDA dbg_features : AND #4 : BEQ ml_noshark
+    LDA var_active : AND #4 : BEQ ml_noshark
     JSR shark_tick
 .ml_noshark
     JSR critter_tick
@@ -278,7 +288,7 @@ ORG &0E00
 .ml_alive
     ; level clear when all items gone (collected or eaten): pay the bonuses,
     ; then hand back to BASIC so it can paint the next level's scenery
-    LDA dbg_features : AND #1 : BEQ ml_loop
+    LDA var_active : AND #1 : BEQ ml_loop
     LDA var_items_left
     BNE ml_loop
     JSR level_clear
@@ -350,7 +360,7 @@ ORG &0E00
 
 .du_pickup
     ; PROCv pickup: C% = FNc((D%+6)*2, e%-14); hit -> sound + PROCK
-    LDA dbg_features : AND #1 : BEQ du_tank
+    LDA var_active : AND #1 : BEQ du_tank
     LDA var_dx : CLC : ADC #6 : ASL A : TAX
     LDA var_dy : SEC : SBC #14 : TAY
     JSR check
@@ -1254,21 +1264,46 @@ bar_tbl_len = 28
     LDA #5 : JSR oswrch
     RTS
 
+; PROCB. The D$ prefix matters twice over: it selects background logical 15
+; (black) for the whole HUD row, and it prints the "Air" label.
 .print_counts
-    LDA #4  : JSR oswrch
-    LDA #17 : JSR oswrch : LDA #7 : JSR oswrch
-    LDA #31 : JSR oswrch : LDA #1 : JSR oswrch : LDA #30 : JSR oswrch
+    LDA #<pc_tbl : STA zp_ptr0
+    LDA #>pc_tbl : STA zp_ptr0+1
+    LDA #pc_tbl_len
+    JSR vdu_seq
     LDA var_item_sprite : JSR oswrch
     LDA #32 : JSR oswrch
     LDA var_items_left : CLC : ADC #48 : JSR oswrch
-    LDA #31 : JSR oswrch : LDA #6 : JSR oswrch : LDA #30 : JSR oswrch
-    LDA #17 : JSR oswrch : LDA #6 : JSR oswrch
-    LDA #241 : JSR oswrch
-    LDA #32 : JSR oswrch
-    LDA #17 : JSR oswrch : LDA #7 : JSR oswrch
+    ; fish counter only when fish exist this level: l% odd, or l% > 6
+    LDA var_level : CMP #7 : BCS pc_fish
+    LDA var_level : AND #1 : BEQ pc_tail
+.pc_fish
+    LDA #<pc_ftbl : STA zp_ptr0
+    LDA #>pc_ftbl : STA zp_ptr0+1
+    LDA #pc_ftbl_len
+    JSR vdu_seq
     LDA var_fish_left : CLC : ADC #48 : JSR oswrch
-    LDA #5 : JSR oswrch
+.pc_tail
+    LDA #17 : JSR oswrch : LDA #128 : JSR oswrch   ; background back to 0
+    LDA #5  : JSR oswrch
     RTS
+
+.pc_tbl
+    EQUB 26,4                       ; reset windows, text at text cursor
+    EQUB 17,143                     ; COLOUR 143 -> background logical 15
+    EQUB 17,7                       ; COLOUR 7   -> foreground
+    EQUB 31,11,30                   ; TAB(11,30)
+    EQUB 65,105,114                 ; "Air"
+    EQUB 17,7
+    EQUB 31,1,30                    ; TAB(1,30) for the item counter
+pc_tbl_len = 17
+
+.pc_ftbl
+    EQUB 31,6,30                    ; TAB(6,30)
+    EQUB 17,6                       ; fish icon in colour 6
+    EQUB 241,32
+    EQUB 17,7                       ; count in colour 7
+pc_ftbl_len = 9
 
 ; ============================================================================
 ; play_snd_ptr - OSWORD 7 with the 8-byte block at snd_ptr.
@@ -1292,7 +1327,7 @@ bar_tbl_len = 28
 ; ============================================================================
 .level_clear
     ; --- PROCM: 50 pts + heart per living fish (rising pitches) ---
-    LDA dbg_features : AND #2 : BNE lc_mstart
+    LDA var_active : AND #2 : BNE lc_mstart
     JMP lc_air
 .lc_mstart
     LDA #0 : STA lc_b
