@@ -1,7 +1,22 @@
 ; ============================================================================
 ; Polymer Picker - machine-code game engine
 ; ----------------------------------------------------------------------------
-; Milestone M3: ENEMIES + COLLECTIBLES. Adds to the proven M2 core:
+; The per-frame game loop, ported from POLY3. BASIC keeps the title screen,
+; instructions, redefine-keys, hall-of-fame AND the per-level scenery; this
+; engine owns everything that runs every frame.
+;
+; ---- M5 ABI (BASIC <-> engine) ---------------------------------------------
+; BASIC paints the scenery for the level, then sets and CALLs:
+;   IN   dbg_level    (&0B0A) level number to play
+;        dbg_newgame  (&0B0B) 1 = new game (zero the score), 0 = continue
+;        key_table    (&0100) 5 redefinable key numbers
+;   OUT  dbg_result   (&0B07) 0 = aborted (SPACE/safety), 1 = out of air,
+;                             2 = all fish dead, 3 = level complete
+;        var_score    (&0B0C) 3-byte BCD score, persists between CALLs
+; The engine returns on level completion so BASIC can paint the next level;
+; it never draws scenery itself.
+;
+; Contents (ported procedure in brackets):
 ;   * junk items placed into the collision boxes and drawn (PROCg)
 ;   * diver item pickup via the machine 'check' routine (PROCv pickup + PROCK)
 ;   * fish AI: init, swim, bounds, eat items, die and sink (PROCf/PROCm/PROCL)
@@ -24,10 +39,11 @@
 ; (latent bug, masked by luck in BASIC). Here the eat check is gated to live
 ; fish (q%=1 or 3).
 ;
-; Loads at &1C00 (NEVER &0E00 while DFS is live - see memorymap DFS HAZARD
-; RULES). Launch protocol:
-;   *LOAD GFX 900 : *LOAD SPRITES : *LOAD ENGINE 1C00 : wait ~2.5s : CLOSE#0 : *TAPE : CALL &1C00
-; Exit: SPACE, all items gone (level clear), or a ~60s safety frame limit.
+; LOAD ADDRESS &0E00 - which is live DFS workspace until the disc is finished
+; with (see memorymap.asm DFS HAZARD RULES). It therefore CANNOT be *LOADed
+; straight there. BASIC must: load it somewhere safe (screen RAM works), wait
+; for the drive to stop, CLOSE#0, *TAPE, then block-copy it down to &0E00.
+; BASIC itself runs at PAGE=&2000, above the engine.
 ; ============================================================================
 
 INCLUDE "src/memorymap.asm"
@@ -51,7 +67,7 @@ U_INKEY         = &CA       ; U (unpause)
 Q_INKEY         = &EF       ; Q (sound off)
 S_INKEY         = &AE       ; S (sound on)
 
-ORG &1C00
+ORG &0E00
 
 .engine_start
     JSR save_zp             ; ABI: preserve BASIC's zero page &00-&6F
@@ -105,7 +121,11 @@ ORG &1C00
     LDA #214 : STA var_dy           ; diver start Y (near the surface)
     LDA #1   : STA var_facing       ; facing right (RDIVER)
     LDA #1   : STA var_speed        ; g% = 1
-    LDA #7   : STA var_level        ; l% = 7: fish AND shark active, bites on
+    LDA dbg_level                   ; l% comes from BASIC (0 -> default 1)
+    BNE lvl_ok
+    LDA #1 : STA dbg_level
+.lvl_ok
+    STA var_level
     LDA #8   : STA var_items_left   ; P%
     LDA #8   : STA var_fish_left    ; L%
     LDA #0   : STA var_hurt
@@ -133,7 +153,13 @@ ORG &1C00
     STA var_alarm_k                 ; K% (tank icon not shown)
     STA var_gameover
     STA dbg_result
+    ; the score persists across levels; only a NEW GAME clears it
+    LDA dbg_newgame
+    BEQ score_kept
+    LDA #0
     STA var_score : STA var_score+1 : STA var_score+2   ; BCD 000000
+    STA dbg_newgame                                     ; consume the flag
+.score_kept
     JSR read_clock                  ; air-tick baseline = now
     LDA clock_buf   : STA air_base
     LDA clock_buf+1 : STA air_base+1
@@ -250,11 +276,14 @@ ORG &1C00
     STA dbg_result
     JMP do_exit
 .ml_alive
-    ; level clear when all items gone (collected or eaten) -> next level
+    ; level clear when all items gone (collected or eaten): pay the bonuses,
+    ; then hand back to BASIC so it can paint the next level's scenery
     LDA dbg_features : AND #1 : BEQ ml_loop
     LDA var_items_left
     BNE ml_loop
     JSR level_clear
+    LDA #3 : STA dbg_result
+    JMP do_exit
 .ml_loop
     JMP main_loop
 
@@ -1342,73 +1371,10 @@ bar_tbl_len = 28
     LDA #19 : JSR osbyte
     JMP lc_ploop
 .lc_pdone
-    ; --- next level ---
-    INC var_level
-    ; wipe the screen and rebuild the level
-    LDA #4  : JSR oswrch
-    LDA #12 : JSR oswrch                  ; CLS
-    LDA #5  : JSR oswrch
-    ; pl% = 248 + (l%-1) MOD 4
-    LDA var_level : SEC : SBC #1
-.lc_plmod
-    CMP #4 : BCC lc_pldone
-    SBC #4 : JMP lc_plmod
-.lc_pldone
-    CLC : ADC #248 : STA var_item_sprite
-    LDA #32  : STA var_dx
-    LDA #214 : STA var_dy
-    LDA #1   : STA var_facing
-    LDA #1   : STA var_speed
-    LDA #8   : STA var_items_left
-    LDA #8   : STA var_fish_left
-    LDA #0   : STA var_fish_cursor
-    LDA #3   : STA var_jelly_cursor
-    LDA #<100 : STA var_crit_x
-    LDA #>100 : STA var_crit_x+1
-    LDA #<1224 : STA var_air
-    LDA #>1224 : STA var_air+1
-    LDA #255 : STA var_interval           ; fresh-level air grace
-    LDA #0
-    STA var_alarm_h
-    STA var_alarm_k
-    JSR read_clock
-    LDA clock_buf   : STA air_base
-    LDA clock_buf+1 : STA air_base+1
-    ; re-init and redraw everything
-    LDY #7
-    LDA #0
-.lc_clrbox
-    STA arr_item_x,Y
-    STA arr_item_y,Y
-    DEY
-    BPL lc_clrbox
-    LDA dbg_features : AND #1 : BEQ lc_ni
-    JSR items_init
-.lc_ni
-    LDA dbg_features : AND #2 : BEQ lc_nf
-    JSR fish_init
-.lc_nf
-    LDA dbg_features : AND #4 : BEQ lc_ns
-    JSR shark_init
-.lc_ns
-    LDA dbg_features : AND #8 : BEQ lc_nj
-    JSR jelly_init
-.lc_nj
-    LDX var_dx
-    LDY var_dy
-    LDA var_facing
-    JSR plotshape
-    LDA var_crit_x   : STA zp_ptr1
-    LDA var_crit_x+1 : STA zp_ptr1+1
-    LDA #192 : STA zp_ptr2
-    LDA #0   : STA zp_ptr2+1
-    LDA var_crit_col : STA var_tmpD
-    LDA var_crit_sprite
-    JSR vdu_char
-    JSR bar_full
-    LDA #6 : JSR bar_colour
-    JSR print_score
-    JMP print_counts
+    ; Level over. The engine does NOT paint the next level: it returns to
+    ; BASIC, which owns the scenery (coral, hills, seagrass, boat, palette)
+    ; and re-CALLs with dbg_level bumped. See the M5 ABI in memorymap.asm.
+    RTS
 
 ; ----------------------------------------------------------------------------
 ; Sound parameter blocks (OSWORD 7: chan;amp;pitch;dur as 16-bit LE each).

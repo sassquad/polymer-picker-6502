@@ -389,7 +389,29 @@ BASIC version by swapping one `JSR` in:
    now uses an explicit `CLC : ADC #1` after the bounds check. Verified: the
    air bonus scores exactly 50/step (30 steps = 1500), and carries across both
    009950->010150 and 099900->100100.
-6. **M5 — Cutover.** POLY3 loop body is a single `CALL`; dead BASIC removed.
+6. **M5 — Cutover.** 🔄 IN PROGRESS.
+   **Done — the architecture works end to end:**
+   - Engine relocated to its production home `&0E00`, BASIC moved up to
+     `PAGE=&2000`. Because `&0E00` is live DFS workspace, BASIC stages the
+     engine in screen RAM (`&5000`), waits for spin-down, `CLOSE#0`, `*TAPE`,
+     then block-copies it down with a 33-byte page copier at `&0A00`.
+     Verified byte-perfect after relocation (only runtime data differs).
+   - BASIC↔engine ABI (documented in engine.asm header): IN `dbg_level`,
+     `dbg_newgame`, `key_table`; OUT `dbg_result` (0 abort / 1 out of air /
+     2 fish gone / 3 level complete) and `var_score`. The score moved OUT of
+     zero page to `&0B0C` so it survives the engine's ZP save/restore and can
+     be read by the hall-of-fame.
+   - **Scenery stays in BASIC** (author's decision): the engine returns on
+     level completion and BASIC paints the next level — palette, sky circles
+     (PROCc), hills (PROCH), seagrass, coral, seabed, boat — then re-CALLs.
+     The engine's own level re-init block was removed (~1.5K freed).
+   - UDGs moved from 21 `VDU23` statements into a binary blob loaded straight
+     to the `&0C00` UDG page.
+   - Verified: levels 1→2→3→4 with fresh scenery each time and the score
+     accumulating across them (0 → 1850 → 4250 → 7100).
+   **Remaining:** wire into the real POLYSCR → POLY1 → engine chain (title,
+   instructions, redefine-keys), hall-of-fame on game over, and delete the
+   now-dead gameplay procedures from POLY3.
 7. **M6 — Retune & reclaim.** Timebase finalised, constants rebalanced, size booked.
 
 ---

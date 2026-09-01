@@ -136,11 +136,12 @@ var_crit_sprite = &35       ; cr%  sprite id
 ;               = &36
 ;               = &37
 
-; --- Score ------------------------------------------------------------ &38-&3B
-; NOTE: representation (binary-24 vs 4-byte BCD) is an OPEN M0 QUESTION.
-; 4 bytes reserved either way; the display routine (PROCe, 6 digits) is decided
-; alongside it. Reference as var_score regardless of the encoding chosen.
-var_score       = &38       ; 4 bytes &38-&3B  (S%)
+; --- Score -----------------------------------------------------------------
+; RESOLVED (M4): 3-byte packed BCD, little-endian, displayed as 6 digits.
+; RELOCATED (M5): the score now lives at var_score in the persistent page, NOT
+; in zero page - the engine restores ZP &00-&6F to BASIC on exit, so a score
+; kept here would be lost between levels and unreadable by the hall-of-fame.
+;   &38-&3B  spare
 
 ; --- General scratch -------------------------------------------------- &40-&5F
 var_tmpA        = &40
@@ -211,7 +212,12 @@ dbg_divider     = &0B05     ; game ticks every N vsync frames (0 -> 1 = 50Hz);
                             ; live-pokeable pacing control until M6 retunes
 dbg_divcnt      = &0B06     ; internal divider counter
 dbg_result      = &0B07     ; why the engine exited: 0 = space/abort/safety,
-                            ; 1 = out of air, 2 = all fish dead
+                            ; 1 = out of air, 2 = all fish dead,
+                            ; 3 = level complete (BASIC paints the next level)
+dbg_level       = &0B0A     ; IN: level number BASIC wants played (l%)
+dbg_newgame     = &0B0B     ; IN: 1 = new game, zero the score; 0 = continue
+var_score       = &0B0C     ; 3 bytes BCD, persists across CALLs so BASIC can
+                            ; carry it between levels and into the hall of fame
 dbg_hurtcd      = &0B09     ; game ticks between 'ouch' sound/blood events while
                             ; contact is sustained (0 -> default 10). The air
                             ; cost is NOT gated by this. Live-tunable.
