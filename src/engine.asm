@@ -275,12 +275,6 @@ ORG &0E00
     BNE fc_nohi
     INC frame_count+1
 .fc_nohi
-    LDA dbg_go              ; remote abort: poke &FF to end the run cleanly
-    CMP #&FF
-    BNE go_ok
-    JMP do_exit
-.go_ok
-
     ; jellies run EVERY frame (50Hz) with quarter-steps: same net speeds as
     ; the BASIC original's chunky jumps, but 4x smoother (author-requested)
     LDA var_active : AND #8 : BEQ ml_nojelly
@@ -333,6 +327,10 @@ ORG &0E00
     JMP main_loop
 
 .do_exit
+    ; The engine reads keys by hardware scan (OSBYTE 129) and never consumes
+    ; the keyboard buffer, so a game's worth of movement keys is still queued.
+    ; Flush it, or BASIC's next GET eats them as the player's name.
+    LDA #21 : LDX #0 : JSR osbyte
     JSR restore_zp          ; ABI: hand BASIC its zero page back
     RTS
 

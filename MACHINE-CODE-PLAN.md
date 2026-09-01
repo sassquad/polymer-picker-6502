@@ -457,6 +457,14 @@ BASIC version by swapping one `JSR` in:
      a ~4 minute safety frame limit that would have aborted real games, and a
      SPACE-to-quit key the original never had. BASIC now has 714 bytes for
      variables and stack.
+   - *Name entry blank / unresponsive after a game.* The engine reads keys by
+     hardware scan (OSBYTE 129) and so never consumes the keyboard buffer - a
+     whole game's movement keys stay queued. `PROCP`'s `GET` then swallowed
+     that backlog as the player's name; when it contained spaces the entry
+     rendered blank AND the 14-character limit filled, so nothing typed
+     afterwards appeared. The engine now flushes the keyboard buffer on exit
+     (OSBYTE 21), and `PROCP` additionally waits for the buffer to stay empty
+     before reading, so a key still held at game over cannot leak in.
 7. **M6 — Retune & reclaim.** Timebase finalised, constants rebalanced, size booked.
 
 ---
