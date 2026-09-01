@@ -68,6 +68,37 @@ Q_INKEY         = &EF       ; Q (sound off)
 S_INKEY         = &AE       ; S (sound on)
 
 ORG &0E00
+.engine_base
+
+; ---------------------------------------------------------------------------
+; Entry is a JMP so the level tables can sit at fixed, BASIC-readable
+; addresses. Held here rather than in BASIC DATA statements because DATA text
+; costs roughly three times what the binary does, and BASIC is the scarcer
+; space. Addresses are contractual - POLY3 hardcodes them:
+;   &0E03  level records: 4 x 21 x 16-bit  (v,ci,m, 2 circles, 2 hills, o,p)
+;   &0EAB  seabed character sequence, 40 bytes
+;   &0ED3  level tunes, 3 x 7 notes
+;   &0EE8  game-over tune, 8 x (pitch,duration)
+; ---------------------------------------------------------------------------
+    JMP engine_start
+
+.game_data
+.gd_levels
+    EQUW 131,1,2,  40,860,40,5,   0,0,0,0,      864,120,32,1,  980,200,64,1,  1,7
+    EQUW 134,1,2,  40,980,40,3,   0,0,0,0,      864,200,64,2,  980,200,64,2,  6,7
+    EQUW 133,1,2,  40,860,40,1,   0,0,0,0,      864,180,32,15, 980,200,64,15, 5,3
+    EQUW 143,2,2, 100,920,40,7, 120,920,40,15,  864,180,32,7,  980,200,64,7,  0,7
+.gd_seabed
+    EQUB 242,243,244,245,246,247,246,245,244,243
+    EQUB 242,243,244,245,246,247,246,245,244,243
+    EQUB 247,246,245,244,243,242,243,244,245,246
+    EQUB 247,246,245,244,243,242,243,244,245,246
+.gd_tunes
+    EQUB 129,125,109,101,89,81,77
+    EQUB 77,81,89,101,109,125,129
+    EQUB 129,125,129,125,129,125,81
+.gd_over
+    EQUB 53,5,41,10,53,10,73,15,41,5,33,10,53,10,69,20
 
 .engine_start
     JSR save_zp             ; ABI: preserve BASIC's zero page &00-&6F
@@ -1189,24 +1220,17 @@ bar_tbl_len = 28
 ; ----------------------------------------------------------------------------
 ; bar_tip_erase - two black columns at O% and O%+8 (GCOL0,15; 15 = black).
 ; ----------------------------------------------------------------------------
+; Template lives in RAM so the two x-coordinates can be patched in place;
+; far cheaper than emitting 28 bytes with LDA/JSR pairs.
 .bar_tip_erase
-    LDA #5  : JSR oswrch
-    LDA #18 : JSR oswrch : LDA #0 : JSR oswrch : LDA #15 : JSR oswrch
-    LDA #25 : JSR oswrch : LDA #4 : JSR oswrch
-    LDA var_air : JSR oswrch : LDA var_air+1 : JSR oswrch
-    LDA #52 : JSR oswrch : LDA #0 : JSR oswrch
-    LDA #25 : JSR oswrch : LDA #5 : JSR oswrch
-    LDA var_air : JSR oswrch : LDA var_air+1 : JSR oswrch
-    LDA #40 : JSR oswrch : LDA #0 : JSR oswrch
-    LDA var_air   : CLC : ADC #8 : STA ac_elapsed
-    LDA var_air+1 : ADC #0       : STA ac_elapsed+1
-    LDA #25 : JSR oswrch : LDA #4 : JSR oswrch
-    LDA ac_elapsed : JSR oswrch : LDA ac_elapsed+1 : JSR oswrch
-    LDA #52 : JSR oswrch : LDA #0 : JSR oswrch
-    LDA #25 : JSR oswrch : LDA #5 : JSR oswrch
-    LDA ac_elapsed : JSR oswrch : LDA ac_elapsed+1 : JSR oswrch
-    LDA #40 : JSR oswrch : LDA #0 : JSR oswrch
-    RTS
+    LDA var_air   : STA bte_tbl+6  : STA bte_tbl+12
+    LDA var_air+1 : STA bte_tbl+7  : STA bte_tbl+13
+    LDA var_air   : CLC : ADC #8 : STA bte_tbl+18 : STA bte_tbl+24
+    LDA var_air+1 : ADC #0       : STA bte_tbl+19 : STA bte_tbl+25
+    LDA #<bte_tbl : STA zp_ptr0
+    LDA #>bte_tbl : STA zp_ptr0+1
+    LDA #28
+    JMP vdu_seq
 
 ; ----------------------------------------------------------------------------
 ; bar_colour - A = physical colour for logical 14 (VDU19,14,A,0,0,0).
@@ -1248,9 +1272,10 @@ bar_tbl_len = 28
     RTS
 
 .print_score
-    LDA #4  : JSR oswrch
-    LDA #17 : JSR oswrch : LDA #7 : JSR oswrch
-    LDA #31 : JSR oswrch : LDA #7 : JSR oswrch : LDA #0 : JSR oswrch
+    LDA #<ps_tbl : STA zp_ptr0
+    LDA #>ps_tbl : STA zp_ptr0+1
+    LDA #6
+    JSR vdu_seq
     LDX #2
 .ps_loop
     LDA var_score,X
@@ -1509,8 +1534,16 @@ pc_ftbl_len = 9
 .lc_b           EQUB 0      ; level_clear bonus counter (pitch steps)
 .vs_count       EQUB 0      ; vdu_seq remaining bytes
 .vs_idx         EQUB 0      ; vdu_seq table index
+.ps_tbl         EQUB 4,17,7,31,7,0          ; print_score prefix: TAB(7,0)
+.bte_tbl                                    ; bar_tip_erase, x values patched
+    EQUB 5
+    EQUB 18,0,15
+    EQUB 25,4, 0,0, 52,0
+    EQUB 25,5, 0,0, 40,0
+    EQUB 25,4, 0,0, 52,0
+    EQUB 25,5, 0,0, 40,0
 ; zp_savebuf now lives at &0B10 (memorymap debug page) to save engine bytes
 
 .engine_end
 
-SAVE "ENGINE", engine_start, engine_end
+SAVE "ENGINE", engine_base, engine_end   ; from &0E00 so the data block is included

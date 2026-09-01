@@ -389,7 +389,7 @@ BASIC version by swapping one `JSR` in:
    now uses an explicit `CLC : ADC #1` after the bounds check. Verified: the
    air bonus scores exactly 50/step (30 steps = 1500), and carries across both
    009950->010150 and 099900->100100.
-6. **M5 — Cutover.** 🔄 IN PROGRESS.
+6. **M5 — Cutover.** ✅ DONE.
    **Done — the architecture works end to end:**
    - Engine relocated to its production home `&0E00`, BASIC moved up to
      `PAGE=&2000`. Because `&0E00` is live DFS workspace, BASIC stages the
@@ -426,9 +426,20 @@ BASIC version by swapping one `JSR` in:
      counter is conditional). The engine spawned both on every level. Now
      `var_active` = `dbg_features` masked by the level rule, and every
      subsystem gate consults it.
-   **Remaining:** wire into the real POLYSCR → POLY1 → engine chain (title,
-   instructions, redefine-keys), hall-of-fame on game over, and delete the
-   now-dead gameplay procedures from POLY3.
+   **Chain wired (M5 complete):** POLYSCR (title) → POLY1 (menu, instructions,
+   redefine-keys) → POLY3 (scenery, level flow, hall of fame) ↔ ENGINE.
+   POLY2 and POLY4 are retired: plotshape is now the GFX binary and the
+   variable setup moved into the engine and POLY3.
+   Final memory map below the MODE 2 screen:
+     `&0900` GFX · `&0A00` COPY · `&0C00` UDG · `&0E00-&1CD1` ENGINE
+     · `&1D00-&2888` POLY3 (632 bytes for variables) · `&2B00` SPRITES
+   The engine image carries the level tables at fixed addresses (`&0E03`
+   levels, `&0EAB` seabed, `&0ED3` tunes, `&0EE8` game-over tune) because
+   BASIC `DATA` text costs roughly three times the binary, and BASIC is the
+   scarcer space - moving them freed ~460 bytes.
+   Hall of fame ported verbatim (PROCh/PROCN/PROCO/PROCP) reading the score
+   from `var_score`; one new bug found and fixed - the score had to be zeroed
+   at startup or the first hall of fame read cold RAM and demanded a name.
 7. **M6 — Retune & reclaim.** Timebase finalised, constants rebalanced, size booked.
 
 ---
