@@ -465,6 +465,9 @@ BASIC version by swapping one `JSR` in:
      afterwards appeared. The engine now flushes the keyboard buffer on exit
      (OSBYTE 21), and `PROCP` additionally waits for the buffer to stay empty
      before reading, so a key still held at game over cannot leak in.
+     (First attempt used `ADVAL(-1)=0` as the "buffer empty" test - that is
+     NOT a character count here, so the guard span forever and swallowed every
+     keystroke. It drains with `INKEY(0)` until -1, time-bounded, instead.)
 7. **M6 — Retune & reclaim.** Timebase finalised, constants rebalanced, size booked.
 
 ---
