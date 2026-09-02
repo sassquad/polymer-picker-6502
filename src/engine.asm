@@ -61,7 +61,8 @@ SAFETY_HI       = 48        ; exit after frame_count high byte reaches this (~60
 BLEED_CHAR      = 239       ; PROCu blood particle UDG
 ITEM_COL        = 7         ; items drawn GCOL3 (EOR) white
 TANK_CHAR       = 237       ; spare oxygen tank UDG
-HEART_CHAR      = 238       ; end-of-level fish bonus heart UDG
+HEART_CHAR      = 238
+CRIT_Y          = 54        ; plotshape Y putting the critter on char row 25       ; end-of-level fish bonus heart UDG
 P_INKEY         = &C8       ; negative-INKEY operands: P (pause)
 U_INKEY         = &CA       ; U (unpause)
 Q_INKEY         = &EF       ; Q (sound off)
@@ -186,7 +187,7 @@ ORG &0E00
     LDA #0   : STA var_hurt
     LDA #0   : STA var_fish_cursor  ; E%
     LDA #3   : STA var_jelly_cursor ; e (first tick wraps to 0)
-    LDA #248 : STA var_item_sprite  ; pl% = 248 + (l%-1) MOD 4 -> 250 for l%=7
+    ; pl% = 248 + (l%-1) MOD 4
     LDA var_level : SEC : SBC #1
 .pl_mod4
     CMP #4 : BCC pl_done
@@ -195,8 +196,10 @@ ORG &0E00
     CLC : ADC #248 : STA var_item_sprite
     LDA #<100 : STA var_crit_x      ; critter (crab/shrimp) start X = 100
     LDA #>100 : STA var_crit_x+1
-    LDA #1   : STA var_crit_col     ; co%
-    LDA #228 : STA var_crit_sprite  ; cr% (crab UDG)
+    LDA #10  : STA var_crit_sprite  ; cr%: shape 10 crab (odd levels)
+    LDA var_level : AND #1 : BNE crit_ok
+    LDA #11  : STA var_crit_sprite  ;      shape 11 shrimp (even levels)
+.crit_ok
     LDA #0 : STA frame_count : STA frame_count+1
 
     ; --- M4: air / score / flags ---
@@ -259,13 +262,11 @@ ORG &0E00
     JSR plotshape
 
     ; draw the critter once so critter_tick's first EOR erase cancels it
-    LDA var_crit_x   : STA zp_ptr1
-    LDA var_crit_x+1 : STA zp_ptr1+1
-    LDA #192 : STA zp_ptr2
-    LDA #0   : STA zp_ptr2+1
-    LDA var_crit_col : STA var_tmpD
+    JSR crit_bytex
+    TAX
+    LDY #CRIT_Y
     LDA var_crit_sprite
-    JSR vdu_char
+    JSR plotshape
 
 .main_loop
     LDA #19                 ; frame lock: wait for vertical sync (50 Hz)
@@ -283,6 +284,16 @@ ORG &0E00
 
     ; pacing: advance game state only every dbg_divider-th frame
     INC dbg_divcnt
+    ; The sea-bed critter is drawn through the OS graphics-cursor character
+    ; path, which is the single most expensive thing in the frame - on its own
+    ; it pushed the game tick just past one vsync. The loop has idle frames
+    ; between ticks, so it runs on the frame AFTER a tick instead of with it.
+    ; Same update rate, same motion, but the work is spread over two frames.
+    LDA dbg_divcnt
+    CMP #1
+    BNE ml_nocrit
+    JSR critter_tick
+.ml_nocrit
     LDA dbg_divider
     BNE div_set
     LDA #1                  ; 0 means run every frame
@@ -307,7 +318,6 @@ ORG &0E00
     LDA var_active : AND #4 : BEQ ml_noshark
     JSR shark_tick
 .ml_noshark
-    JSR critter_tick
 
     ; game over? (air ran out, or every fish is dead)
     LDA var_gameover
@@ -996,31 +1006,37 @@ ORG &0E00
 ;   boat, which is static level furniture). EOR erase old, draw new.
 ; ============================================================================
 .critter_tick
-    LDA var_crit_x     : STA var_crit_x_old
-    LDA var_crit_x+1   : STA var_crit_x_old+1
-    LDA var_crit_x     : CLC : ADC #6 : STA var_crit_x
-    LDA var_crit_x+1   : ADC #0 : STA var_crit_x+1
+    ; Screen byte position = cx% >> 4 (16 graphics units per MODE 2 byte).
+    ; Only redraw when that byte actually changes: at 6 units/tick the critter
+    ; crosses a byte roughly every third tick, so most ticks cost nothing.
+    JSR crit_bytex
+    STA var_crit_bx
+    LDA var_crit_x     : CLC : ADC #6 : STA var_crit_x     ; cx% += 6
+    LDA var_crit_x+1   : ADC #0       : STA var_crit_x+1
     SEC
     LDA var_crit_x     : SBC #<1261
     LDA var_crit_x+1   : SBC #>1261
-    BCC ct_draw
+    BCC ct_nowrap
     LDA #0 : STA var_crit_x : STA var_crit_x+1
-.ct_draw
-    LDA var_crit_x_old   : STA zp_ptr1
-    LDA var_crit_x_old+1 : STA zp_ptr1+1
-    LDA #192 : STA zp_ptr2
-    LDA #0   : STA zp_ptr2+1
-    LDA var_crit_col : STA var_tmpD
-    LDA var_crit_sprite
-    JSR vdu_char                            ; erase at old x
-    LDA var_crit_x   : STA zp_ptr1
-    LDA var_crit_x+1 : STA zp_ptr1+1
-    LDA #192 : STA zp_ptr2
-    LDA #0   : STA zp_ptr2+1
-    LDA var_crit_col : STA var_tmpD
-    LDA var_crit_sprite
-    JMP vdu_char                            ; draw at new x
+.ct_nowrap
+    JSR crit_bytex
+    CMP var_crit_bx
+    BEQ ct_done                         ; same screen byte - nothing to do
+    STA var_crit_bx_new
+    LDX var_crit_bx     : LDY #CRIT_Y : LDA var_crit_sprite : JSR plotshape
+    LDX var_crit_bx_new : LDY #CRIT_Y : LDA var_crit_sprite : JMP plotshape
+.ct_done
+    RTS
 
+; crit_bytex - A = cx% >> 4, the critter's screen byte column
+.crit_bytex
+    LDA var_crit_x+1 : STA var_tmpA
+    LDA var_crit_x
+    LSR var_tmpA : ROR A
+    LSR var_tmpA : ROR A
+    LSR var_tmpA : ROR A
+    LSR var_tmpA : ROR A
+    RTS
 
 ; ============================================================================
 ; test_key - A = direction index (0..4). Returns Z=1 if that key is held.

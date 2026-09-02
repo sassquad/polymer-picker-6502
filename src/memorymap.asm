@@ -137,8 +137,8 @@ var_crit_x      = &30       ; cx%  16-BIT  (0..1260)      &30 lo / &31 hi
 var_crit_x_old  = &32       ; oc%  16-BIT                 &32 lo / &33 hi
 var_crit_col    = &34       ; co%  colour
 var_crit_sprite = &35       ; cr%  sprite id
-;               = &36
-;               = &37
+var_crit_bx     = &36       ; critter screen byte column, this tick
+var_crit_bx_new = &37       ;   and after the move
 
 ; --- Score -----------------------------------------------------------------
 ; RESOLVED (M4): 3-byte packed BCD, little-endian, displayed as 6 digits.

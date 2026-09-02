@@ -1,5 +1,5 @@
 ; --- page copier: moves the engine image down to &0E00 after *TAPE ---
-ORG &0A00
+ORG &0A70
 .copier
     LDA #&50 : STA csrc+2       ; source page  (&5000, staged in screen RAM)
     LDA #&0E : STA cdst+2       ; dest page    (&0E00, freed by *TAPE)
@@ -51,3 +51,22 @@ ORG &0C00
     EQUB 102,153,153,126,126,153,153,102     ; 251 junk
 .udg_end
 SAVE "UDG", udg, udg_end
+
+; --- sea-bed critter sprites, MODE 2 plotshape format ---------------------
+; Generated from the crab/shrimp UDGs with their level colours baked in, so
+; the critter can be drawn by plotshape instead of the OS graphics-cursor
+; character path, which cost a whole frame per tick.
+ORG &0A30
+.critspr
+    ; crab, colour 1 - 4 byte-columns x 8 scanlines
+    EQUB 2,1,1,0,1,3,1,2
+    EQUB 2,0,0,1,2,3,0,0
+    EQUB 1,0,0,2,1,3,0,0
+    EQUB 1,2,2,0,2,3,2,1
+    ; shrimp, colour 5 - 4 byte-columns x 8 scanlines
+    EQUB 0,0,0,0,17,51,34,0
+    EQUB 0,0,0,17,51,34,0,34
+    EQUB 17,17,0,34,51,0,34,17
+    EQUB 17,17,0,51,51,0,17,17
+.critspr_end
+SAVE "CRIT", critspr, critspr_end
