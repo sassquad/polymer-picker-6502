@@ -28,7 +28,7 @@ PAGE=&1D00
 CHAIN"POLY3"
 ENDPROC
 DEFPROCask
-PROCcntr(1,10,1,"Polymer Picker v1.12")
+PROCcntr(1,10,1,"Polymer Picker v2.00")
 PROCcntr(0,6,1,"Written by Stephen Scott (c) 2024")
 PROCcntr(0,12,2,"www.sassquad.net")
 PROCcntr(0,9,3,"Bluesky: @sassquad.net")
@@ -42,7 +42,7 @@ VDU26,31,2,22,129,157,135:PRINT;"OR PRESS SPACEBAR TO PLAY GAME  ";:VDU156,28,0,
 *FX15
 ENDPROC
 DEFPROCinstruct
-PROCcntr(1,10,1,"Polymer Picker v1.12")
+PROCcntr(1,10,1,"Polymer Picker v2.00")
 PROCcntr(0,6,1,"Written by Stephen Scott (c) 2024")
 PROCcntr(0,12,2,"www.sassquad.net")
 PROCcntr(0,9,3,"Bluesky: @sassquad.net")
@@ -140,7 +140,7 @@ NEXT
 UNTIL K%<>255 AND K%<>112 AND G%=TRUE
 =K%
 DEFPROCredefine:S%=FALSE:VDU26,12
-PROCcntr(1,10,1,"Polymer Picker v1.12")
+PROCcntr(1,10,1,"Polymer Picker v2.00")
 PROCcntr(0,6,1,"Written by Stephen Scott (c) 2024")
 PROCcntr(0,12,2,"www.sassquad.net")
 PROCcntr(0,9,3,"Bluesky: @sassquad.net")
