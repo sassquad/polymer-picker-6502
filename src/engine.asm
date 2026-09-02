@@ -62,7 +62,9 @@ BLEED_CHAR      = 239       ; PROCu blood particle UDG
 ITEM_COL        = 7         ; items drawn GCOL3 (EOR) white
 TANK_CHAR       = 237       ; spare oxygen tank UDG
 HEART_CHAR      = 238
-CRIT_Y          = 54        ; plotshape Y putting the critter on char row 25       ; end-of-level fish bonus heart UDG
+CRIT_Y          = 46        ; plotshape Y putting the critter on char row 26,
+                            ; sitting on the sand (rows 27-28). Measured against
+                            ; the original VDU-drawn crab, which landed there.
 P_INKEY         = &C8       ; negative-INKEY operands: P (pause)
 U_INKEY         = &CA       ; U (unpause)
 Q_INKEY         = &EF       ; Q (sound off)
