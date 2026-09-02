@@ -29,7 +29,7 @@ The current latest version can be played online. You'll need a desktop/laptop co
 
 ## How did this game come about?
 
-The game was started in September 2021 and initially released in December 2022. A new edition was released in September 2023 to include jellyfish as an added hazard, along with some other tweaks. Previous versions can be downloaded from the [game's dedicated Stardot thread](https://stardot.org.uk/forums/viewtopic.php?f=53&t=23615).
+The game was started in September 2021 and initially released in December 2022. A new edition was released in September 2023 to include jellyfish as an added hazard, along with some other tweaks. Version 2.00 followed in September 2026, and is the biggest change yet - the per-frame game loop was rewritten in 6502 machine code, replacing the BASIC that used to drive it, and the spare air tank now has to be earned rather than collected on the spot. Previous versions can be downloaded from the [game's dedicated Stardot thread](https://stardot.org.uk/forums/viewtopic.php?f=53&t=23615).
 
 <img src="polymer-picker-eve.png" alt="Image of Polymer Picker" width="450" />
 
