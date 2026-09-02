@@ -1,5 +1,5 @@
-# Polymer Picker (BBC Basic/Assembler version)
-A BBC Basic and Assembler version of the Polymer Picker game.
+# Polymer Picker (BBC Micro, machine-code version)
+A version of the Polymer Picker game for the BBC Micro, with the game loop written in 6502 machine code.
 
 [Play online](https://bbc.godbolt.org/?disc=https://www.sassquad.net/downloads/polymer-picker/polymer-picker-assembly.ssd&autoboot) or [watch a playthrough video](https://youtu.be/hrgzWWyr84Y).
 
@@ -60,9 +60,14 @@ PUTTEXT "src/BOOT.txt", "!BOOT",&FFFFFF,&FFFFFF
 PUTBASIC "src/POLYSCR.bas","POLYSCR"
 PUTFILE "src/PPBY.bin","PPBY",&FF1800,&FF1800
 PUTFILE "src/PPSCR.bin","PPSCR",&FF3000,&FF3000
-PUTBASIC "src/POLY2.bas","POLY2"
+PUTBASIC "src/POLY1.bas","POLY1"
+PUTBASIC "src/POLY3.bas","POLY3"
+
+; COPY (engine relocator), UDG (characters) and the critter sprites
+INCLUDE "src/support.asm"
+
 ORG &2B00
-.start
+.sprites_start
 INCBIN "src/LDIVER.bin"
 INCBIN "src/RDIVER.bin"
 INCBIN "src/LFISH.bin"
@@ -73,11 +78,11 @@ INCBIN "src/DLFISH.bin"
 INCBIN "src/DRFISH.bin"
 INCBIN "src/FSHK.bin"
 INCBIN "src/JELLY.bin"
-.end
-SAVE "SPRITES",start,end
-PUTBASIC "src/POLY1.bas","POLY1"
-PUTBASIC "src/POLY3.bas","POLY3"
-PUTBASIC "src/POLY4.bas","POLY4"
+.sprites_end
+SAVE "SPRITES", sprites_start, sprites_end
+
+; GFX (the sprite plotter at &900) and the machine-code engine (&0E00)
+INCLUDE "src/engine.asm"
 ```
 
 The following attempts to paraphrase an approach in more efficient memory management of the game, and some nifty loading techniques, which improve the loading time, and playability of the game, as performed by Stardot forum member 'hexwab' - any errors or omissions are my fault.
@@ -86,15 +91,38 @@ The above build file takes the files within the `src` folder, and outputs them i
 
 Due to some recently introduced changes, the game files are now loaded in a different order to that of their filenames. `POLYSCR` is loaded first, which displays two screen files. Although `PPBY.bin` was originally output into high resolution MODE 0, `POLYSCR` now loads it into a smaller version of MODE 1, to shorten loading time, and allow the use of a neat fade in and out effect, before loading the main title screen `PPSCR`.
 
-While the title screen is displayed, some further loading of files is performed 'in the background', starting with `POLY2` which contains some assembly language for the sprite routines. These have been further optimised for speed and efficiency. The `SPRITES` file is loaded into memory, before `POLY1` is loaded, which contains the instructions.
+`POLYSCR` then chains `POLY1`, which sets up the characters and sound envelopes, and contains the instructions and the redefinable keys. Once you are finished with those, `POLY1` writes your chosen keys into memory and chains `POLY3`.
 
-Before the instructions are displayed, `POLY1` *LOADs the two remaining BASIC files - `POLY3` and `POLY4` - into various memory locations. At this point, the loading screen will then invite you to press the spacebar to continue. This will display the options screen in MODE 7 straight away - there is no further loading required from this point.
+`POLY3` loads everything the game needs and then hands over to the machine-code engine. It keeps the parts of the game that only run once per level or between games - the scenery, the level flow, and the hall of fame - while the engine does everything that happens every frame.
 
-Once you are finished with the instructions, or redefining the keys, a small piece of assembler code is run which relocates the game into a lower portion of memory, before running the game. MODE 7 uses 1k of memory for the high score table, while the game uses MODE 2, which uses 20k of the BBC Micro's 32k of memory - so there isn't much left to play with!
+## The machine-code engine
 
-`POLY4` contains a variety of VDU numbers which are read into string variables, for use in `POLY3`, along with some high score table data. The string variables are used in the game, and render in a faster manner in BASIC than using decimal VDU values, performed in previous versions.
+The per-frame game loop was rewritten in 6502 assembler, replacing the interpreted BASIC that used to drive it. The engine handles the diver, the junk items, the fish, the shark, the jellyfish, all the collision tests, the air supply, the sound and the on-screen score and counters. It runs locked to the vertical sync, advancing the game state once every five frames, which reproduces the pace of the original BASIC version.
 
-`POLY3` is the game code itself, which remains heavily compacted. The above technique has freed up about 1.5k of memory with which to add new features, or perform further refinements.
+The source is in three files:
+
+* `src/memorymap.asm` - the single source of truth for every fixed address, and the rules about which areas of memory are safe to use and when
+* `src/gfx.asm` - the sprite plotter and the collision test, taken from the original inline assembler and assembled to `&900`
+* `src/engine.asm` - the engine itself
+
+There is a wrinkle in getting the engine into memory. It runs at `&0E00`, but that address is the disc filing system's own workspace, so anything loaded there while the DFS is still in use gets quietly corrupted. `POLY3` therefore loads the engine into screen memory first, waits for the drive to stop, switches to the tape filing system with `*TAPE` to release the workspace, and then block-copies the engine down into place with a small relocator. This is the same trick the BASIC version used to move itself down, applied to the engine instead.
+
+The memory below the screen ends up looking like this:
+
+```
+&0900-&0A08  GFX      sprite plotter and collision test
+&0A30-&0A70  CRIT     sea-bed critter sprites
+&0A70-&0A91  COPY     the engine relocator
+&0AB0-&0AFF  the fish, jellyfish and junk arrays
+&0C00-&0CE0  UDG      user defined characters
+&0D00-&0D20  the screen row table
+&0E00-&1D00  ENGINE   the machine-code game loop
+&1D00-&2870  POLY3    scenery, level flow and hall of fame
+&2B00-&2FFF  SPRITES
+&3000-&7FFF  the MODE 2 screen
+```
+
+BASIC and the engine talk to each other through a few bytes at `&0B00`. BASIC tells the engine which level to draw and whether this is a new game; the engine tells BASIC why it stopped - the level was cleared, the air ran out, or all the fish died - and leaves the score somewhere BASIC can read it for the hall of fame. Because the engine borrows BASIC's zero page while it runs, it saves and restores it around every call.
 
 Essentially, the `beebasm` call includes the `-opt 3` flag, that enables the disc image to be executable. The following line:
 
