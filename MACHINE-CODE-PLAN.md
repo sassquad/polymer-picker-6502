@@ -336,7 +336,8 @@ BASIC version by swapping one `JSR` in:
    against overlap with the image. Verified via HTTP-driven autopilot: all 8
    items vacuumed by a scripted diver; 45s all-systems soak crash-free with
    invariant checks (positions/states/shapes in bounds, 0 violations).
-   Known M6 item: full load runs at ~25 fps (2 vsyncs/tick) — tune later.
+   (The frame overrun noted here was diagnosed and fixed in M6: it was the
+   critter's VDU draw, not the enemy load.)
    Documented divergence: dead fish can no longer "eat" (latent shape-table
    overrun in the BASIC original).
    **Author-approved tuning (interactive session, 2026-09-01):**
@@ -345,8 +346,9 @@ BASIC version by swapping one `JSR` in:
    - Jellyfish: serviced every frame at quarter-steps (same net speed classes
      ±4/8/12/16, 4× finer motion) — deliberate machine-code-era enhancement,
      author-requested and approved.
-   - Occasional sprite flicker (raster vs draw timing) noted and deferred to
-     M6 (draw ordering / vsync phase), explicitly not a priority now.
+   - Occasional sprite flicker (raster vs draw timing) — M6 removed the frame
+     overrun that worsened it; the residual is the inherent single-buffer EOR
+     window. Author's call: leave it.
 5. **M4 — Air & level flow on asm.** ✅ Air drain (PROCD) with the M% fast-swim
    coupling, spare tank spawn/grab (PROCJ), full PROCu (air cost + sound), sound
    via OSWORD 7 with the original envelopes installed by the engine (OSWORD 8),
@@ -468,13 +470,20 @@ BASIC version by swapping one `JSR` in:
      (First attempt used `ADVAL(-1)=0` as the "buffer empty" test - that is
      NOT a character count here, so the guard span forever and swallowed every
      keystroke. It drains with `INKEY(0)` until -1, time-bounded, instead.)
-7. **M6 — Retune & reclaim.** Timebase finalised, constants rebalanced, size booked.
+7. **M6 — Retune & reclaim.** ✅ Frame overrun eliminated (critter drawn with
+   plotshape), pace restored to the approved 10.0 ticks/s, critter height
+   corrected, name-entry DELETE fixed. Shark flicker left by author's choice.
 
 ---
 
-## Open questions to settle at M0
+## Open questions from M0 — all settled
 
-- Timebase: keep centisecond throttle, or move to true 50 Hz and retune? (§4)
-- Score storage: binary or BCD? (affects §7 display routine)
-- Do we keep the `*TAPE`/`CALL&50` relocation trampoline from `PROCstart`, or load
-  the engine as a plain file like `SPRITES`? (Cleaner to do the latter.)
+- **Timebase:** both. The loop is vsync-locked at 50 Hz and game state advances
+  every `dbg_divider`-th frame; air keeps its centisecond `M%` gate. Divider 5
+  gives the author-approved 10.0 ticks/s.
+- **Score storage:** 3-byte packed BCD, displayed as six digits, held OUTSIDE
+  zero page at `var_score` so it survives the engine's ZP save/restore and can
+  be read by the hall of fame.
+- **Relocation trampoline:** kept, but for the ENGINE rather than BASIC.
+  `&0E00` is DFS core workspace, so the engine cannot be loaded there directly:
+  POLY3 stages it in screen RAM, `*TAPE`s, then block-copies it down.
