@@ -222,6 +222,11 @@ dbg_level       = &0B0A     ; IN: level number BASIC wants played (l%)
 dbg_newgame     = &0B0B     ; IN: 1 = new game, zero the score; 0 = continue
 var_score       = &0B0C     ; 3 bytes BCD, persists across CALLs so BASIC can
                             ; carry it between levels and into the hall of fame
+dbg_tankdepth   = &0B0F     ; the spare tank only appears once the diver is at
+                            ; or below this depth. dy counts UP the screen
+                            ; (214 = surface, 54 = sea bed), so a SMALLER value
+                            ; means the diver must go deeper. 134 = halfway.
+                            ; Set by POLY3; live-tunable.
 dbg_hurtcd      = &0B09     ; game ticks between 'ouch' sound/blood events while
                             ; contact is sustained (0 -> default 10). The air
                             ; cost is NOT gated by this. Live-tunable.

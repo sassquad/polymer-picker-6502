@@ -433,6 +433,7 @@ ORG &0E00
     LDA var_air+1 : SBC #>1068
     BCS du_keys
     LDA var_alarm_h : BNE du_keys
+    LDA var_alarm_k : BEQ du_keys    ; no tank on the boat - nothing to grab
     JSR refill                       ; PROCJ
 .du_keys
     ; P pauses until U; Q sound off; S sound on (PROCv lines 53-55)
@@ -1145,6 +1146,12 @@ ORG &0E00
     BCS ac_over
     LDA var_alarm_h : BNE ac_over
     LDA var_alarm_k : BNE ac_over
+    ; ...and only once the diver is deep enough. Without this a diver sitting
+    ; at the surface - where it starts, inside the grab zone - could farm an
+    ; endless supply of tanks. dy counts UP the screen, so a diver in the
+    ; upper half has dy >= the threshold.
+    LDA var_dy : CMP dbg_tankdepth
+    BCS ac_over
     LDX #<snd_tank : STX snd_ptr
     LDX #>snd_tank : STX snd_ptr+1
     JSR play_snd_ptr                ; SOUND 2,3,240,2

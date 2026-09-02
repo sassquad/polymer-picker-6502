@@ -473,6 +473,16 @@ BASIC version by swapping one `JSR` in:
 7. **M6 — Retune & reclaim.** ✅ Frame overrun eliminated (critter drawn with
    plotshape), pace restored to the approved 10.0 ticks/s, critter height
    corrected, name-entry DELETE fixed. Shark flicker left by author's choice.
+   **Spare tank made a real objective (author request, a deliberate divergence
+   from the original).** Previously the diver started inside the surface grab
+   zone (dx 31-39, dy>210) and the refill test checked only position, air and
+   `H%` - never whether a tank had actually appeared - so a diver parked at the
+   surface refilled indefinitely. Two changes: the tank now only APPEARS once
+   the diver is at or below `dbg_tankdepth` (&0B0F, default 134 = halfway down
+   the play area), and it can only be GRABBED when one has actually spawned
+   (`K%=1`). The result is a round trip: dive deep to summon the tank, surface
+   to collect it. Verified: camping at the surface no longer refills, diving
+   summons the tank, surfacing collects it, and a second camp is refused.
 
 ---
 
