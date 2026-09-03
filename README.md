@@ -1,7 +1,7 @@
 # Polymer Picker (BBC Micro, machine-code version)
 A version of the Polymer Picker game for the BBC Micro, with the game loop written in 6502 machine code.
 
-[Play online](https://bbc.godbolt.org/?disc=https://www.sassquad.net/downloads/polymer-picker/polymer-picker-assembly.ssd&autoboot) or [watch a playthrough video](https://youtu.be/hrgzWWyr84Y).
+[**Play version 2.00 online**](https://bbc.xania.org/?disc=https://www.sassquad.net/downloads/polymer-picker/polymer-picker-fuller-assembly-v2-00a.ssd&autoboot) or [watch a playthrough video](https://youtu.be/hrgzWWyr84Y).
 
 ## About the game
 
@@ -19,9 +19,11 @@ If you run out of air, or all the fish die, then it's game over.
 
 ## Play online
 
-The current latest version can be played online. You'll need a desktop/laptop computer or a tablet with a keyboard to play this.
+The current version (2.00, the machine-code edition) can be played online. You'll need a desktop/laptop computer or a tablet with a keyboard to play this.
 
-[Play online](https://bbc.godbolt.org/?disc=https://www.sassquad.net/downloads/polymer-picker/polymer-picker-assembly.ssd&autoboot)
+[**Play version 2.00 online**](https://bbc.xania.org/?disc=https://www.sassquad.net/downloads/polymer-picker/polymer-picker-fuller-assembly-v2-00a.ssd&autoboot)
+
+The previous BASIC edition remains available too: [play the earlier version](https://bbc.godbolt.org/?disc=https://www.sassquad.net/downloads/polymer-picker/polymer-picker-assembly.ssd&autoboot).
 
 ## Watch a playthrough video of the game
 
