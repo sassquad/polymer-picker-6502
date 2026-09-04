@@ -5,6 +5,45 @@
 ; instructions, redefine-keys, hall-of-fame AND the per-level scenery; this
 ; engine owns everything that runs every frame.
 ;
+; ---- READING ORDER & TECHNIQUES (start here if you are new to this) ---------
+; The drawing is in src/gfx.asm (the EOR sprite plotter and the box collision
+; test) - read that first; everything here just decides WHAT to draw and calls
+; plotshape to do it. Then the natural path through this file is:
+;   engine_start  - one-time setup: seed the RNG, read the level, draw the
+;                   opening frame, then fall into...
+;   main_loop     - the heart of it (below). Understand this and the rest is
+;                   detail.
+;   diver_update, air_check, fish_tick, shark_tick, jelly_tick, critter_tick
+;                 - one subsystem each, called from the loop.
+;
+; Four ideas recur:
+;
+;   * FRAME PACING.  The loop waits for vertical sync (OSBYTE 19) every pass,
+;     so it runs at a steady 50 Hz. Raw machine code would play far too fast,
+;     so the game state is only advanced once every dbg_divider frames (a
+;     "game tick"); the frames in between just hold. See main_loop / .div_tick.
+;
+;   * EOR SPRITES (explained in gfx.asm).  A sprite is moved by drawing it at
+;     its OLD position (which erases it) then at the new one. That is why every
+;     mover here keeps an "_old" copy of its position and redraws only when it
+;     has actually changed.
+;
+;   * BORROWED ZERO PAGE.  The engine keeps its hot variables in &00-&6F, which
+;     is BASIC's. On entry it copies BASIC's &00-&6F into a buffer (save_zp)
+;     and on exit copies it back (restore_zp), so BASIC never notices. That is
+;     the whole reason the score and the level number live OUTSIDE zero page,
+;     up in the &0B00 debug page - they must survive across a call.
+;
+;   * BCD SCORE.  The score is three bytes of packed binary-coded decimal (two
+;     digits per byte). score_add sets the 6502's decimal mode (SED) so ADC
+;     does base-10 arithmetic, which makes the six-digit display trivial. Watch
+;     for the CLD that turns decimal mode back off.
+;
+; The &0B00 "debug page" doubles as the BASIC interface and as tuning/telemetry
+; knobs (dbg_features gates each subsystem, dbg_forcekeys can puppet the diver
+; for testing, dbg_divider/sharkwin/hurtcd/tankdepth tune the feel) - all
+; pokeable live over the b2 emulator's HTTP API. See memorymap.asm.
+;
 ; ---- M5 ABI (BASIC <-> engine) ---------------------------------------------
 ; BASIC paints the scenery for the level, then sets and CALLs:
 ;   IN   dbg_level    (&0B0A) level number to play
@@ -270,6 +309,22 @@ ORG &0E00
     LDA var_crit_sprite
     JSR plotshape
 
+; ============================================================================
+; main_loop - the per-frame heart of the engine. engine_start falls into this
+; after setup and it never returns by falling out - it exits only via do_exit
+; (game over, or a level cleared), which hands control back to BASIC.
+;
+; One pass = one 50 Hz frame:
+;   1. wait for vertical sync, so the loop is paced to the display
+;   2. move the jellyfish (every frame, for smoothness)
+;   3. every dbg_divider-th frame only, run a "game tick": the diver, the air,
+;      the fish and the shark. In between, the loop just idles - this is the
+;      speed governor that stops machine code playing far too fast.
+;   4. draw the sea-bed critter on the frame just after a tick (spreading the
+;      cost - it is the most expensive single draw)
+;   5. test the end conditions: out of air / all fish dead -> game over;
+;      all items gone -> pay the end-of-level bonus and hand back to BASIC.
+; ============================================================================
 .main_loop
     LDA #19                 ; frame lock: wait for vertical sync (50 Hz)
     JSR osbyte

@@ -1,4 +1,25 @@
-; --- page copier: moves the engine image down to &0E00 after *TAPE ---
+; ============================================================================
+; Polymer Picker - support code and data loaded alongside the engine
+; ----------------------------------------------------------------------------
+; Two small pieces the engine needs but which are not part of it:
+;   * COPY - the page copier that relocates the engine down to &0E00
+;   * UDG  - the user-defined character shapes for the scenery and HUD
+; Both are plain PUTFILE/*LOAD blobs; neither is called from the game loop.
+; ============================================================================
+
+; ----------------------------------------------------------------------------
+; Page copier.  The engine cannot be loaded straight to its run address &0E00,
+; because that is the disc system's own workspace (see the DFS rules in
+; memorymap.asm). So BASIC loads the engine into spare screen RAM at &5000,
+; switches the disc off with *TAPE - which frees &0E00 - then calls this to
+; block-copy the image down.
+;
+; It copies 15 whole pages (3840 bytes). The trick worth noticing: the source
+; and destination addresses in the two instructions .csrc and .cdst are PATCHED
+; as it runs. The high byte of each is incremented after every 256-byte page
+; (INC csrc+2 / INC cdst+2 write into the instruction's own operand), so the
+; single LDA/STA pair walks through all 15 pages without needing a pointer.
+; ----------------------------------------------------------------------------
 ORG &0A70
 .copier
     LDA #&50 : STA csrc+2       ; source page  (&5000, staged in screen RAM)
@@ -6,14 +27,14 @@ ORG &0A70
     LDY #15                     ; 15 pages = 3840 bytes covers the engine
     LDX #0
 .cloop
-.csrc LDA &5000,X
-.cdst STA &0E00,X
+.csrc LDA &5000,X              ; operand high byte is patched per page
+.cdst STA &0E00,X              ; operand high byte is patched per page
     INX
-    BNE cloop
-    INC csrc+2
+    BNE cloop                  ; inner loop: 256 bytes of the current page
+    INC csrc+2                 ; next page: bump both addresses...
     INC cdst+2
     DEY
-    BNE cloop
+    BNE cloop                  ; ...for 15 pages
     RTS
 .copier_end
 SAVE "COPY", copier, copier_end
