@@ -7,8 +7,6 @@ PRINTTAB(5,30)"  Press SPACEBAR to continue  ":*FX15
 REPEATUNTILGET=32
 MODE7:VDU23;8202;0;0;0;
 PROCask
-*LOAD POLY3 3000
-*LOAD POLY4 5000
 REPEAT
 A$=GET$
 UNTIL A$=" " OR A$="I" OR A$="R":VDU26,12
@@ -25,16 +23,13 @@ DEFPROCstart
 REM Write key definitions into &100
 FOR X%=0 TO 4
 X%?&100=k%(X%)
-NEXT:VDU26,12,21
-P%=&50:[OPT2:ldx#0:ldy#&18:lda&4700,X:sta&2500,X:inx:bne&54:dec&56:dec&59:dey:bpl&54:rts:]
-*TAPE
-A$="CALL&50"+CHR$13+"OLD"+CHR$13+"PAGE=&5000:GOTO1"+CHR$13
-A%=138:X%=0:FOR E%=1TOLENA$:Y%=ASCMID$(A$,E%,1):CALL&FFF4:NEXT
-PAGE=&E00:END
+NEXT:VDU26,12
+PAGE=&1D00
+CHAIN"POLY3"
 ENDPROC
 DEFPROCask
-PROCcntr(1,10,1,"Polymer Picker v1.12")
-PROCcntr(0,6,1,"Written by Stephen Scott (c) 2024")
+PROCcntr(1,10,1,"Polymer Picker v2.00")
+PROCcntr(0,6,1,"Written by Stephen Scott (c) 2026")
 PROCcntr(0,12,2,"www.sassquad.net")
 PROCcntr(0,9,3,"Bluesky: @sassquad.net")
 PROCcntr(0,3,5,"with the grateful assistance of")
@@ -47,8 +42,8 @@ VDU26,31,2,22,129,157,135:PRINT;"OR PRESS SPACEBAR TO PLAY GAME  ";:VDU156,28,0,
 *FX15
 ENDPROC
 DEFPROCinstruct
-PROCcntr(1,10,1,"Polymer Picker v1.12")
-PROCcntr(0,6,1,"Written by Stephen Scott (c) 2024")
+PROCcntr(1,10,1,"Polymer Picker v2.00")
+PROCcntr(0,6,1,"Written by Stephen Scott (c) 2026")
 PROCcntr(0,12,2,"www.sassquad.net")
 PROCcntr(0,9,3,"Bluesky: @sassquad.net")
 PRINT''" Your local tropical bay is polluted"
@@ -145,8 +140,8 @@ NEXT
 UNTIL K%<>255 AND K%<>112 AND G%=TRUE
 =K%
 DEFPROCredefine:S%=FALSE:VDU26,12
-PROCcntr(1,10,1,"Polymer Picker v1.12")
-PROCcntr(0,6,1,"Written by Stephen Scott (c) 2024")
+PROCcntr(1,10,1,"Polymer Picker v2.00")
+PROCcntr(0,6,1,"Written by Stephen Scott (c) 2026")
 PROCcntr(0,12,2,"www.sassquad.net")
 PROCcntr(0,9,3,"Bluesky: @sassquad.net")
 VDU28,0,21,39,6

@@ -2,9 +2,14 @@ PUTTEXT "src/BOOT.txt", "!BOOT",&FFFFFF,&FFFFFF
 PUTBASIC "src/POLYSCR.bas","POLYSCR"
 PUTFILE "src/PPBY.bin","PPBY",&FF1800,&FF1800
 PUTFILE "src/PPSCR.bin","PPSCR",&FF3000,&FF3000
-PUTBASIC "src/POLY2.bas","POLY2"
+PUTBASIC "src/POLY1.bas","POLY1"
+PUTBASIC "src/POLY3.bas","POLY3"
+
+; COPY (engine relocator) and UDG (character definitions)
+INCLUDE "src/support.asm"
+
 ORG &2B00
-.start
+.sprites_start
 INCBIN "src/LDIVER.bin"
 INCBIN "src/RDIVER.bin"
 INCBIN "src/LFISH.bin"
@@ -15,8 +20,8 @@ INCBIN "src/DLFISH.bin"
 INCBIN "src/DRFISH.bin"
 INCBIN "src/FSHK.bin"
 INCBIN "src/JELLY.bin"
-.end
-SAVE "SPRITES",start,end
-PUTBASIC "src/POLY1.bas","POLY1"
-PUTBASIC "src/POLY3.bas","POLY3"
-PUTBASIC "src/POLY4.bas","POLY4"
+.sprites_end
+SAVE "SPRITES", sprites_start, sprites_end
+
+; GFX (plotshape/check at &900) and the machine-code engine (&0E00)
+INCLUDE "src/engine.asm"
