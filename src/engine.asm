@@ -40,9 +40,9 @@
 ;     for the CLD that turns decimal mode back off.
 ;
 ; The &0B00 "debug page" doubles as the BASIC interface and as tuning/telemetry
-; knobs (dbg_features gates each subsystem, dbg_forcekeys can puppet the diver
-; for testing, dbg_divider/sharkwin/hurtcd/tankdepth tune the feel) - all
-; pokeable live over the b2 emulator's HTTP API. See memorymap.asm.
+; knobs (dbg_features gates each subsystem, dbg_divider/sharkwin/hurtcd/tankdepth
+; tune the feel) - all pokeable live over the b2 emulator's HTTP API. See
+; memorymap.asm.
 ;
 ; ---- M5 ABI (BASIC <-> engine) ---------------------------------------------
 ; BASIC paints the scenery for the level, then sets and CALLs:
@@ -66,7 +66,7 @@
 ;   * seeded 16-bit PRNG replacing BASIC's RND
 ;
 ; Debug interface (see memorymap.asm): dbg_features gates each subsystem,
-; dbg_forcekeys puppets the diver - both pokeable live over b2 Debug HTTP.
+; pokeable live over b2 Debug HTTP.
 ;
 ; Timing model (confirmed from POLY3): PROCv/enemies/PROCl run every loop
 ; iteration; only air (PROCD) is throttled by M% - that gate arrives at M4.
@@ -95,8 +95,6 @@ INCLUDE "src/gfx.asm"
 .gfx_end
 SAVE "GFX", gfx_start, gfx_end
 
-SPACE_INKEY     = &9D       ; OSBYTE &81 X-operand for negative-INKEY SPACE (-99)
-SAFETY_HI       = 48        ; exit after frame_count high byte reaches this (~60 s)
 BLEED_CHAR      = 239       ; PROCu blood particle UDG
 ITEM_COL        = 7         ; items drawn GCOL3 (EOR) white
 TANK_CHAR       = 237       ; spare oxygen tank UDG
@@ -329,7 +327,7 @@ ORG &0E00
     LDA #19                 ; frame lock: wait for vertical sync (50 Hz)
     JSR osbyte
 
-    INC frame_count         ; safety limit
+    INC frame_count         ; liveness counter (HTTP-peekable), 16-bit
     BNE fc_nohi
     INC frame_count+1
 .fc_nohi
@@ -1098,21 +1096,12 @@ ORG &0E00
 
 ; ============================================================================
 ; test_key - A = direction index (0..4). Returns Z=1 if that key is held.
-;   dbg_forcekeys bit7 set: forced mode - low 3 bits name the pressed index.
-;   Otherwise OSBYTE &81 negative INKEY via key_table.
+;   OSBYTE &81 negative INKEY via key_table.
+;   (M9 will reintroduce an alternate input branch here for the joystick;
+;    dbg_forcekeys &0B01 stays reserved for that.)
 ; ============================================================================
 .test_key
     TAY
-    LDA dbg_forcekeys
-    BPL tk_real
-    AND tk_bits,Y                           ; bits 0-4 = pressed mask per index
-    BEQ tk_notpressed
-    LDX #&FF : CPX #&FF : RTS               ; forced: pressed (Z=1)
-.tk_notpressed
-    LDX #0 : CPX #&FF : RTS                 ; forced: not pressed (Z=0)
-.tk_bits
-    EQUB 1,2,4,8,16
-.tk_real
     LDA key_table,Y
     EOR #&FF
     TAX
