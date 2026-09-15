@@ -97,6 +97,8 @@ SAVE "GFX", gfx_start, gfx_end
 
 BLEED_CHAR      = 239       ; PROCu blood particle UDG
 ITEM_COL        = 7         ; items drawn GCOL3 (EOR) white
+ITEM_XMIN       = 8         ; M8: sea-current tank walls, in arr_item_x units
+ITEM_XMAX       = 140       ;     (item is drawn at x*8 graphics; 140 -> 1120)
 TANK_CHAR       = 237       ; spare oxygen tank UDG
 HEART_CHAR      = 238
 CRIT_Y          = 46        ; plotshape Y putting the critter on char row 26,
@@ -169,43 +171,17 @@ ORG &0E00
     LDA #&12 : STA var_rng+1
 .seed_ok
 
-    ; --- feature mask: 0 (cold RAM) means everything on ---
-    LDA dbg_features
-    BNE feat_ok
-    LDA #&FF : STA dbg_features
-.feat_ok
-    ; --- pacing divider: sanitize cold RAM to default 4 (=12.5 ticks/s) ---
-    LDA dbg_divider
-    BEQ div_default
-    CMP #11
-    BCC div_ok
-.div_default
-    LDA #4 : STA dbg_divider
-.div_ok
-    LDA #0 : STA dbg_divcnt
-    ; --- shark front-on half-window: clamp cold RAM to the default 4 ---
-    LDA dbg_sharkwin
-    BEQ swin_default
-    CMP #13
-    BCC swin_ok
-.swin_default
-    LDA #4 : STA dbg_sharkwin
-.swin_ok
-    ; --- 'ouch' feedback cooldown: clamp cold RAM to the default 10 ticks ---
-    LDA dbg_hurtcd
-    BEQ hcd_default
-    CMP #61
-    BCC hcd_ok
-.hcd_default
-    LDA #10 : STA dbg_hurtcd
-.hcd_ok
-    LDA #0 : STA var_hurtcd
+    ; The cold-RAM clamps for dbg_features/divider/sharkwin/hurtcd were reclaimed
+    ; for M8. POLY3 pokes all four at boot (and a NEW GAME always routes through
+    ; those pokes), and none of them indexes memory - they are masks/thresholds/
+    ; counters - so an unsanitized value only degrades feel, never crashes.
+    ; divider==0 is still handled at runtime (main_loop) as "advance every frame".
+    LDA #0 : STA dbg_divcnt : STA var_hurtcd
 
     ; --- initial game state (normally set by PROCo) ---
     LDA #32  : STA var_dx           ; diver start X
     LDA #214 : STA var_dy           ; diver start Y (near the surface)
-    LDA #1   : STA var_facing       ; facing right (RDIVER)
-    LDA #1   : STA var_speed        ; g% = 1
+    LDA #1   : STA var_facing : STA var_speed   ; facing right (RDIVER); g% = 1
     LDA dbg_level                   ; l% comes from BASIC (0 -> default 1)
     BNE lvl_ok
     LDA #1 : STA dbg_level
@@ -215,16 +191,14 @@ ORG &0E00
     ; (POLY3 line 1: l%>6 -> fish AND shark, l% odd -> fish, l% even -> shark)
     LDA dbg_features : STA var_active
     LDA var_level : CMP #7 : BCS lr_done
-    LDA var_level : AND #1 : BEQ lr_even
+    AND #1 : BEQ lr_even            ; A still = var_level from the CMP above
     LDA var_active : AND #&FB : STA var_active   ; odd level: no shark
     JMP lr_done
 .lr_even
     LDA var_active : AND #&FD : STA var_active   ; even level: no fish
 .lr_done
-    LDA #8   : STA var_items_left   ; P%
-    LDA #8   : STA var_fish_left    ; L%
-    LDA #0   : STA var_hurt
-    LDA #0   : STA var_fish_cursor  ; E%
+    LDA #8   : STA var_items_left : STA var_fish_left   ; P%, L%
+    LDA #0   : STA var_hurt : STA var_fish_cursor       ; E%
     LDA #3   : STA var_jelly_cursor ; e (first tick wraps to 0)
     ; pl% = 248 + (l%-1) MOD 4
     LDA var_level : SEC : SBC #1
@@ -284,6 +258,7 @@ ORG &0E00
     LDA var_active : AND #1 : BEQ no_items_init
     JSR items_init
 .no_items_init
+    JSR current_init                ; M8: seed the sea current for this level
     LDA var_active : AND #2 : BEQ no_fish_init
     JSR fish_init
 .no_fish_init
@@ -367,6 +342,7 @@ ORG &0E00
 
     JSR diver_update
     JSR air_check                   ; PROCD: time-gated air drain + tank spawn
+    JSR current_move                ; M8: drift the junk items with the current
     LDA var_active : AND #2 : BEQ ml_nofish
     JSR fish_tick
 .ml_nofish
@@ -411,13 +387,13 @@ ORG &0E00
     ; left (key 0): if D% > 1 then D% -= g%, face left
     LDA #0 : JSR test_key : BNE du_noleft
     LDA var_dx : CMP #2 : BCC du_noleft
-    LDA var_dx : SEC : SBC var_speed : STA var_dx
+    SEC : SBC var_speed : STA var_dx        ; A still = var_dx from the CMP
     LDA #0 : STA var_facing
 .du_noleft
     ; right (key 1): if D% < 67 then D% += g%, face right
     LDA #1 : JSR test_key : BNE du_noright
     LDA var_dx : CMP #67 : BCS du_noright
-    LDA var_dx : CLC : ADC var_speed : STA var_dx
+    CLC : ADC var_speed : STA var_dx        ; A still = var_dx from the CMP
     LDA #1 : STA var_facing
 .du_noright
     ; up (key 2): if e% < 212 then e% += g%*2
@@ -446,6 +422,9 @@ ORG &0E00
     LDA #1   : STA var_speed
     LDA #200 : STA var_interval
 .du_speeddone
+
+    ; (M8 diver drift deferred: the current moves the junk items only for now;
+    ;  nudging the diver too is a later addition once code space allows.)
 
     ; redraw only if the diver actually changed
     LDA var_dx     : CMP var_dx_old     : BNE du_redraw
@@ -551,6 +530,56 @@ ORG &0E00
     LDA var_item_sprite
     JSR vdu_char
     LDY item_saveY
+    RTS
+
+
+; ============================================================================
+; M8 sea current. current_init seeds the drift for this level; current_move
+;   runs once per game tick to step and bounce the junk items. Diver drift is
+;   handled in diver_update. Only items that actually step this tick are
+;   redrawn, so the (expensive) vdu_char cost stays proportional to motion.
+; ============================================================================
+.current_init
+    ; dbg_current (this level's strength) is poked by POLY3 before the CALL, so
+    ; the still->rough curve is tuned in BASIC, not baked into the engine. Here
+    ; we only seed each item: drift right, with staggered accumulator phases so
+    ; they don't all cross a whole unit on the same tick (which would burst the
+    ; redraws into one frame).
+    LDY #7
+.ci_loop
+    LDA #1 : STA arr_item_dir,Y             ; +1 = drift right (first cut)
+    TYA
+    ASL A : ASL A : ASL A : ASL A : ASL A   ; Y*32 accumulator-phase stagger
+    STA arr_item_frac,Y
+    DEY : BPL ci_loop
+    RTS
+
+.current_move
+    LDA dbg_current
+    BNE cm_on
+    RTS                                     ; still water: nothing to do
+.cm_on
+    STA var_tmpA                            ; |current| this tick
+    LDY #7
+.cm_loop
+    LDA arr_item_y,Y
+    BEQ cm_next                             ; collected item -> skip
+    LDA arr_item_frac,Y : CLC : ADC var_tmpA : STA arr_item_frac,Y
+    BCC cm_next                             ; no whole-unit step this tick
+    ; tentative new X = old + dir (test it BEFORE moving, so a wall bounce
+    ; costs no erase/redraw - the item just reverses and holds this tick)
+    LDA arr_item_x,Y : CLC : ADC arr_item_dir,Y
+    CMP #ITEM_XMIN     : BCC cm_bounce
+    CMP #ITEM_XMAX+1   : BCS cm_bounce
+    PHA                                     ; in bounds: erase old, commit, draw
+    JSR item_draw                           ; EOR-erase at the old X (keeps Y)
+    PLA : STA arr_item_x,Y
+    JSR item_draw                           ; redraw at the new X (keeps Y)
+    JMP cm_next
+.cm_bounce
+    LDA #0 : SEC : SBC arr_item_dir,Y : STA arr_item_dir,Y          ; reverse dir
+.cm_next
+    DEY : BPL cm_loop
     RTS
 
 
@@ -1360,7 +1389,7 @@ bar_tbl_len = 28
     LDA var_items_left : CLC : ADC #48 : JSR oswrch
     ; fish counter only when fish exist this level: l% odd, or l% > 6
     LDA var_level : CMP #7 : BCS pc_fish
-    LDA var_level : AND #1 : BEQ pc_tail
+    AND #1 : BEQ pc_tail            ; A still = var_level from the CMP above
 .pc_fish
     LDA #<pc_ftbl : STA zp_ptr0
     LDA #>pc_ftbl : STA zp_ptr0+1
@@ -1414,8 +1443,7 @@ pc_ftbl_len = 9
     LDA var_active : AND #2 : BNE lc_mstart
     JMP lc_air
 .lc_mstart
-    LDA #0 : STA lc_b
-    LDA #0 : STA lc_i
+    LDA #0 : STA lc_b : STA lc_i
 .lc_mloop
     LDX lc_i
     LDA arr_fish_state,X : CMP #2 : BNE lc_malive

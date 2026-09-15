@@ -236,6 +236,17 @@ dbg_sharkwin    = &0B08     ; shark front-on half-window, in D%-units (1 unit =
                             ; 0 -> sanitized to the default 4. Live-tunable.
 zp_savebuf      = &0B10     ; 112-byte hold for BASIC's ZP &00-&6F (to &0B7F)
 
+; --- M8: sea current (engine-internal state + one tunable knob) --------------
+; The &0B80-&0BFF tail of the debug page is otherwise free; the current's
+; per-item arrays live here (absolute,Y indexing, since LDA has no zp,Y mode).
+dbg_current     = &0B80     ; current strength: whole units added to each item's
+                            ; fractional accumulator per tick (1 = 1/256 unit).
+                            ; 0 = still water. Engine seeds (level-1)*16 capped
+                            ; at CUR_CAP each level; live-tunable over HTTP.
+arr_item_dir    = &0B81     ; per-item drift direction, +1 / &FF (-1)   (8 bytes)
+arr_item_frac   = &0B89     ; per-item fractional-position accumulator  (8 bytes)
+diver_frac      = &0B91     ; diver drift accumulator (1 byte)
+
 
 ; ============================================================================
 ; (A) INHERITED routine entry points
