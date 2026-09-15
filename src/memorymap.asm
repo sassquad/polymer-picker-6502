@@ -209,8 +209,11 @@ dbg_features    = &0B00     ; bit0 items, bit1 fish, bit2 shark, bit3 jelly
 dbg_forcekeys   = &0B01     ; bit7 set: test_key ignores hardware; bits 0-4 =
                             ; pressed MASK (1=left 2=right 4=up 8=down 16=fast,
                             ; combinable). 0 = real keyboard
-dbg_go          = &0B02     ; harness GO/abort handshake: harness zeroes it and
-                            ; waits nonzero before CALL; engine exits when &FF
+dbg_current     = &0B02     ; M8 sea current strength (reuses the retired dbg_go
+                            ; slot): whole units added to each item's fractional
+                            ; accumulator per tick. 0 = still. POLY3 pokes it per
+                            ; level; live-tunable. Kept in main RAM (not zero
+                            ; page) so BASIC can poke it safely between CALLs.
 frame_count     = &0B03     ; EQUW frames run this session (peekable liveness)
 dbg_divider     = &0B05     ; game ticks every N vsync frames (0 -> 1 = 50Hz);
                             ; live-pokeable pacing control until M6 retunes
@@ -236,16 +239,18 @@ dbg_sharkwin    = &0B08     ; shark front-on half-window, in D%-units (1 unit =
                             ; 0 -> sanitized to the default 4. Live-tunable.
 zp_savebuf      = &0B10     ; 112-byte hold for BASIC's ZP &00-&6F (to &0B7F)
 
-; --- M8: sea current (engine-internal state + one tunable knob) --------------
-; The &0B80-&0BFF tail of the debug page is otherwise free; the current's
-; per-item arrays live here (absolute,Y indexing, since LDA has no zp,Y mode).
-dbg_current     = &0B80     ; current strength: whole units added to each item's
-                            ; fractional accumulator per tick (1 = 1/256 unit).
-                            ; 0 = still water. Engine seeds (level-1)*16 capped
-                            ; at CUR_CAP each level; live-tunable over HTTP.
-arr_item_dir    = &0B81     ; per-item drift direction, +1 / &FF (-1)   (8 bytes)
-arr_item_frac   = &0B89     ; per-item fractional-position accumulator  (8 bytes)
-diver_frac      = &0B91     ; diver drift accumulator (1 byte)
+; --- M8: sea current state (dbg_current lives at &0B02, above) ----------------
+; The per-item arrays are engine-internal (never poked by BASIC), so they live
+; in reclaimed zero page. Indexed by the item number in Y; LDA has no zp,Y mode
+; so these assemble as absolute,Y regardless - ZP costs nothing here but frees
+; &0B80-&0BFF for the junk sprites (below).
+arr_item_dir    = &60       ; per-item drift direction, +1 / &FF (-1)   (8: &60-&67)
+arr_item_frac   = &68       ; per-item fractional-position accumulator  (8: &68-&6F)
+item_shape      = &2C       ; plotshape shape index (12-15) for this level's junk
+
+; --- M8 phase 2: junk-item plotshape sprites (loaded file "IJNK") -------------
+; &0B80-&0BFF holds the four junk sprites (shape indices 12-15, 32 bytes each at
+; &0B80/&0BA0/&0BC0/&0BE0). See src/support.asm and the shape tables in gfx.asm.
 
 
 ; ============================================================================

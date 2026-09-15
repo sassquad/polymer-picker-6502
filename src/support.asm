@@ -91,3 +91,36 @@ ORG &0A30
     EQUB 17,17,0,51,51,0,17,17
 .critspr_end
 SAVE "CRIT", critspr, critspr_end
+
+; --- junk-item sprites, MODE 2 plotshape format (M8 phase 2) ----------------
+; The four junk UDGs (248-251) converted to plotshape sprites in colour 7, so
+; drifting items can be EOR-plotted instead of drawn through the slow OS
+; graphics-cursor character path (which flickered once items moved). Each is a
+; 4 byte-column x 8 scanline shape (32 bytes); byte values are the MODE 2
+; colour-7 pixel pairs (&2A left, &15 right, &3F both, &00 none), generated
+; from the UDG bitmaps. Loaded at &0B80 (freed after the M8 state moved to zero
+; page); shape indices 12-15 in gfx.asm point at &0B80/&0BA0/&0BC0/&0BE0.
+ORG &0B80
+.junkspr
+    ; junk UDG 248
+    EQUB &15,&15,&15,&15,&15,&15,&15,&15
+    EQUB &00,&00,&3F,&3F,&3F,&3F,&3F,&3F
+    EQUB &00,&00,&3F,&3F,&3F,&3F,&3F,&3F
+    EQUB &2A,&2A,&2A,&2A,&2A,&2A,&2A,&2A
+    ; junk UDG 249
+    EQUB &00,&00,&00,&15,&3F,&00,&00,&00
+    EQUB &00,&15,&3F,&3F,&3F,&3F,&15,&00
+    EQUB &2A,&2A,&2A,&3F,&3F,&3F,&3F,&2A
+    EQUB &00,&00,&00,&2A,&3F,&2A,&00,&00
+    ; junk UDG 250
+    EQUB &15,&3F,&3F,&3F,&3F,&3F,&15,&00
+    EQUB &3F,&3F,&3F,&3F,&3F,&3F,&3F,&00
+    EQUB &2A,&3F,&3F,&3F,&3F,&3F,&2A,&00
+    EQUB &00,&00,&3F,&3F,&3F,&00,&00,&00
+    ; junk UDG 251
+    EQUB &15,&2A,&2A,&15,&15,&2A,&2A,&15
+    EQUB &2A,&15,&15,&3F,&3F,&15,&15,&2A
+    EQUB &15,&2A,&2A,&3F,&3F,&2A,&2A,&15
+    EQUB &2A,&15,&15,&2A,&2A,&15,&15,&2A
+.junkspr_end
+SAVE "IJNK", junkspr, junkspr_end

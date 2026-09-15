@@ -206,7 +206,8 @@ ORG &0E00
     CMP #4 : BCC pl_done
     SBC #4 : JMP pl_mod4
 .pl_done
-    CLC : ADC #248 : STA var_item_sprite
+    CLC : ADC #248 : STA var_item_sprite      ; UDG char (HUD count icon)
+    SEC : SBC #236 : STA item_shape           ; plotshape index = 12 + (l-1)MOD4
     LDA #<100 : STA var_crit_x      ; critter (crab/shrimp) start X = 100
     LDA #>100 : STA var_crit_x+1
     LDA #10  : STA var_crit_sprite  ; cr%: shape 10 crab (odd levels)
@@ -516,19 +517,17 @@ ORG &0E00
 ;   Preserves Y.
 ; ----------------------------------------------------------------------------
 .item_draw
+    ; M8 phase 2: EOR-plot the item with plotshape (was the slow OS graphics-
+    ; cursor char path, which flickered once items moved). The item coordinate
+    ; maps straight onto plotshape's: X = arr_item_x/2 (arr_item_x is in the
+    ; check-box units the old vdu_char drew at *8; plotshape wants *(8>>4)=/2),
+    ; and Y = arr_item_y (plotshape Y already matches the collision box). This
+    ; also aligns the sprite exactly with the collision box in check.
     STY item_saveY
-    LDA arr_item_x,Y : STA zp_ptr1
-    LDA #0 : STA zp_ptr1+1
-    ASL zp_ptr1 : ROL zp_ptr1+1
-    ASL zp_ptr1 : ROL zp_ptr1+1
-    ASL zp_ptr1 : ROL zp_ptr1+1            ; x16 = G% * 8
-    LDA arr_item_y,Y : STA zp_ptr2
-    LDA #0 : STA zp_ptr2+1
-    ASL zp_ptr2 : ROL zp_ptr2+1
-    ASL zp_ptr2 : ROL zp_ptr2+1            ; y16 = J% * 4
-    LDA #ITEM_COL : STA var_tmpD
-    LDA var_item_sprite
-    JSR vdu_char
+    LDA arr_item_x,Y : LSR A : TAX          ; plotshape X = arr_item_x / 2
+    LDA arr_item_y,Y : TAY                  ; plotshape Y = arr_item_y
+    LDA item_shape                          ; this level's junk sprite (12-15)
+    JSR plotshape                           ; EOR: one call draws, a second erases
     LDY item_saveY
     RTS
 

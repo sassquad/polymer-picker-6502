@@ -244,16 +244,17 @@
 ;   index: 0 LDIVER 1 RDIVER 2 LFISH 3 RFISH 4 LSHK
 ;          5 RSHK   6 DLFISH 7 DRFISH 8 FSHK  9 JELLY
 ;          10 crab  11 shrimp   (sea-bed critter, converted from UDGs at &0A30)
+;          12-15 junk items 248-251 (M8: converted from UDGs, colour 7, &0B80)
 ; Four parallel tables, indexed by the shape number:
 ;   shapeloaddr / shapehiaddr = address of the sprite's bytes
 ;   shapesize                 = number of 2-pixel columns (width)
 ;   shapedepth                = bytes per column (height in bytes)
 ; ----------------------------------------------------------------------------
 .shapeloaddr
-    EQUB <&2B00, <&2BC0, <&2C80, <&2CA0, <&2CC0, <&2DC0, <&2EC0, <&2EE0, <&2F00, <&2F80,<&0A30, <&0A50
+    EQUB <&2B00, <&2BC0, <&2C80, <&2CA0, <&2CC0, <&2DC0, <&2EC0, <&2EE0, <&2F00, <&2F80,<&0A30, <&0A50, <&0B80, <&0BA0, <&0BC0, <&0BE0
 .shapehiaddr
-    EQUB >&2B00, >&2BC0, >&2C80, >&2CA0, >&2CC0, >&2DC0, >&2EC0, >&2EE0, >&2F00, >&2F80,>&0A30, >&0A50
+    EQUB >&2B00, >&2BC0, >&2C80, >&2CA0, >&2CC0, >&2DC0, >&2EC0, >&2EE0, >&2F00, >&2F80,>&0A30, >&0A50, >&0B80, >&0BA0, >&0BC0, >&0BE0
 .shapesize
-    EQUB 12, 12, 4, 4, 16, 16, 4, 4, 8, 8,4, 4
+    EQUB 12, 12, 4, 4, 16, 16, 4, 4, 8, 8,4, 4, 4, 4, 4, 4
 .shapedepth
-    EQUB 16, 16, 8, 8, 16, 16, 8, 8, 16, 16,8, 8
+    EQUB 16, 16, 8, 8, 16, 16, 8, 8, 16, 16,8, 8, 8, 8, 8, 8
