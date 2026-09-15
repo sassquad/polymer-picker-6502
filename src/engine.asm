@@ -339,11 +339,11 @@ ORG &0E00
 
     ; pacing: advance game state only every dbg_divider-th frame
     INC dbg_divcnt
-    ; The sea-bed critter is drawn through the OS graphics-cursor character
-    ; path, which is the single most expensive thing in the frame - on its own
-    ; it pushed the game tick just past one vsync. The loop has idle frames
-    ; between ticks, so it runs on the frame AFTER a tick instead of with it.
-    ; Same update rate, same motion, but the work is spread over two frames.
+    ; The sea-bed critter is drawn with plotshape (M6 moved it off the far
+    ; costlier OS graphics-cursor path). It still runs on the frame AFTER a tick
+    ; rather than with it, so its draw shares the work across the loop's idle
+    ; frames instead of stacking onto the tick frame. Same update rate, same
+    ; motion; the frame just stays comfortably inside one vsync.
     LDA dbg_divcnt
     CMP #1
     BNE ml_nocrit
