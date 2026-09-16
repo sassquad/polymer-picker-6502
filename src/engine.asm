@@ -539,17 +539,25 @@ ORG &0E00
 ;   redrawn, so the (expensive) vdu_char cost stays proportional to motion.
 ; ============================================================================
 .current_init
-    ; dbg_current (this level's strength) is poked by POLY3 before the CALL, so
-    ; the still->rough curve is tuned in BASIC, not baked into the engine. Here
-    ; we only seed each item: drift right, with staggered accumulator phases so
-    ; they don't all cross a whole unit on the same tick (which would burst the
-    ; redraws into one frame).
+    ; dbg_current is the level's drift base, set by POLY3 (PROCo): 0 = still
+    ; water on the intro levels, then a capped ramp with the level. Here each
+    ; item takes its OWN speed - base/2 + rnd(base), i.e. ~[base/2, 1.5*base) -
+    ; so the rubbish drifts at differing, naturalistic rates, not in lock-step.
+    LDA dbg_current : LSR A : STA var_tmpB    ; base/2, computed once
     LDY #7
 .ci_loop
-    LDA #1 : STA arr_item_dir,Y             ; +1 = drift right (first cut)
+    LDA dbg_current : BEQ ci_still            ; still water -> speed 0 (no rnd(0))
+    JSR rnd_mod                               ; A=base -> rnd 0..base-1 (Y kept)
+    CLC : ADC var_tmpB                        ; base/2 + rnd(base)
+    JMP ci_setspeed
+.ci_still
+    LDA #0
+.ci_setspeed
+    STA arr_item_speed,Y                      ; this item's per-tick drift speed
+    LDA #1 : STA arr_item_dir,Y               ; +1 = drift right
     TYA
-    ASL A : ASL A : ASL A : ASL A : ASL A   ; Y*32 accumulator-phase stagger
-    STA arr_item_frac,Y
+    ASL A : ASL A : ASL A : ASL A : ASL A     ; Y*32 accumulator-phase stagger, so
+    STA arr_item_frac,Y                       ; items don't all step on one tick
     DEY : BPL ci_loop
     RTS
 
@@ -558,12 +566,11 @@ ORG &0E00
     BNE cm_on
     RTS                                     ; still water: nothing to do
 .cm_on
-    STA var_tmpA                            ; |current| this tick
     LDY #7
 .cm_loop
     LDA arr_item_y,Y
     BEQ cm_next                             ; collected item -> skip
-    LDA arr_item_frac,Y : CLC : ADC var_tmpA : STA arr_item_frac,Y
+    LDA arr_item_frac,Y : CLC : ADC arr_item_speed,Y : STA arr_item_frac,Y
     BCC cm_next                             ; no whole-unit step this tick
     ; tentative new X = old + dir (test it BEFORE moving, so a wall bounce
     ; costs no erase/redraw - the item just reverses and holds this tick)

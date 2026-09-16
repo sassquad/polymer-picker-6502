@@ -209,11 +209,11 @@ dbg_features    = &0B00     ; bit0 items, bit1 fish, bit2 shark, bit3 jelly
 dbg_forcekeys   = &0B01     ; bit7 set: test_key ignores hardware; bits 0-4 =
                             ; pressed MASK (1=left 2=right 4=up 8=down 16=fast,
                             ; combinable). 0 = real keyboard
-dbg_current     = &0B02     ; M8 sea current strength (reuses the retired dbg_go
-                            ; slot): whole units added to each item's fractional
-                            ; accumulator per tick. 0 = still. POLY3 pokes it per
-                            ; level; live-tunable. Kept in main RAM (not zero
-                            ; page) so BASIC can poke it safely between CALLs.
+dbg_current     = &0B02     ; M8 sea current base strength (reuses the retired
+                            ; dbg_go slot). 0 = still water. current_init sets it
+                            ; per level (still below DRIFT_FROM, then ramping);
+                            ; per-item speeds are spread around it. Kept in main
+                            ; RAM (not ZP) so it stays live-pokeable over HTTP.
 frame_count     = &0B03     ; EQUW frames run this session (peekable liveness)
 dbg_divider     = &0B05     ; game ticks every N vsync frames (0 -> 1 = 50Hz);
                             ; live-pokeable pacing control until M6 retunes
@@ -246,6 +246,8 @@ zp_savebuf      = &0B10     ; 112-byte hold for BASIC's ZP &00-&6F (to &0B7F)
 ; &0B80-&0BFF for the junk sprites (below).
 arr_item_dir    = &60       ; per-item drift direction, +1 / &FF (-1)   (8: &60-&67)
 arr_item_frac   = &68       ; per-item fractional-position accumulator  (8: &68-&6F)
+arr_item_speed  = &16       ; per-item drift speed, set from the level base with a
+                            ; random spread (8: &16-&1D, in the air/tank ZP spare)
 item_shape      = &2C       ; plotshape shape index (12-15) for this level's junk
 
 ; --- M8 phase 2: junk-item plotshape sprites (loaded file "IJNK") -------------
