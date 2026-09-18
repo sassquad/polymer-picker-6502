@@ -758,13 +758,21 @@ ORG &0E00
     BCC si_noflip                           ; dx+8 < SX -> keep facing left
     LDA #5 : STA var_shk_dir
 .si_noflip
+    ; Start height rises toward the surface with the level, then holds. The
+    ; level is clamped to 10 BEFORE the multiply: the old code did level*10 on
+    ; the raw level and only capped AFTER, so from level 20 the byte overflowed
+    ; (200+60 = 260 -> 4), the cap saw 4 < 161 and passed it, and the shark
+    ; spawned at the very bottom - its tall sprite then wrapped round into the
+    ; sky. (A form of this bit the BASIC original too.) Clamping first keeps
+    ; level*10+60 in 70..160, so it can never wrap. Levels 1-19 are unchanged.
     LDA var_level
-    ASL A : ASL A : ADC var_level           ; l*5 (carry clear: l small)
-    ASL A                                   ; l*10
-    CLC : ADC #60
-    CMP #161 : BCC si_ycap
-    LDA #160
-.si_ycap
+    CMP #10 : BCC si_lvl                     ; level < 10: use as-is
+    LDA #10                                  ; level >= 10: hold at the top height
+.si_lvl
+    STA var_tmpA
+    ASL A : ASL A : ADC var_tmpA            ; level*5 (carry clear: level <= 10)
+    ASL A                                    ; level*10  (<= 100)
+    CLC : ADC #60                            ; 70 .. 160, no overflow
     STA var_shk_y
     LDA #1 : STA var_shk_vspeed             ; V% = 1 (PROCo)
     LDX var_shk_x
