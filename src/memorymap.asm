@@ -211,9 +211,11 @@ dbg_forcekeys   = &0B01     ; bit7 set: test_key ignores hardware; bits 0-4 =
                             ; combinable). 0 = real keyboard
 dbg_current     = &0B02     ; M8 sea current base strength (reuses the retired
                             ; dbg_go slot). 0 = still water. current_init sets it
-                            ; per level (still below DRIFT_FROM, then ramping);
-                            ; per-item speeds are spread around it. Kept in main
-                            ; RAM (not ZP) so it stays live-pokeable over HTTP.
+                            ; per level (still on 1-2, then (level-2)*16 clamped
+                            ; to 144); per-item speeds are spread around it. It
+                            ; was briefly poked from POLY3's PROCo, but that cost
+                            ; BASIC heap, so the calc moved back into the engine.
+                            ; Main RAM (not ZP) so it stays live-pokeable.
 frame_count     = &0B03     ; EQUW frames run this session (peekable liveness)
 dbg_divider     = &0B05     ; game ticks every N vsync frames (0 -> 1 = 50Hz);
                             ; live-pokeable pacing control until M6 retunes

@@ -539,10 +539,21 @@ ORG &0E00
 ;   redrawn, so the (expensive) vdu_char cost stays proportional to motion.
 ; ============================================================================
 .current_init
-    ; dbg_current is the level's drift base, set by POLY3 (PROCo): 0 = still
-    ; water on the intro levels, then a capped ramp with the level. Here each
-    ; item takes its OWN speed - base/2 + rnd(base), i.e. ~[base/2, 1.5*base) -
-    ; so the rubbish drifts at differing, naturalistic rates, not in lock-step.
+    ; Per-level drift base -> dbg_current (moved here from POLY3's PROCo to give
+    ; BASIC back the heap it cost). Still water on levels 1-2; from level 3 the
+    ; base is (level-2)*16, and (level-2) is CLAMPED to 9 first so *16 tops out
+    ; at 144 and can never overflow (same guard as shark_init). Each item then
+    ; takes its OWN speed - base/2 + rnd(base) - so the rubbish drifts at
+    ; differing, naturalistic rates, not in lock-step.
+    LDA #0 : STA dbg_current
+    LDA var_level : SEC : SBC #2              ; level-2  (level 1 -> borrow)
+    BCC ci_base_done                          ; level 1: still water
+    CMP #10 : BCC ci_noclamp                  ; clamp (level-2) to 9 -> *16 <= 144
+    LDA #9
+.ci_noclamp
+    ASL A : ASL A : ASL A : ASL A             ; (level-2 clamped) * 16
+    STA dbg_current                           ; level 2 -> 0 (still), 3+ -> 16..144
+.ci_base_done
     LDA dbg_current : LSR A : STA var_tmpB    ; base/2, computed once
     LDY #7
 .ci_loop
@@ -1288,10 +1299,7 @@ ORG &0E00
 ; bar_full - the air bar rectangle x 920-1216, y 40-52 in logical colour 14.
 ; ----------------------------------------------------------------------------
 .bar_full
-    LDA #<bar_tbl : STA zp_ptr0
-    LDA #>bar_tbl : STA zp_ptr0+1
-    LDA #bar_tbl_len
-    JMP vdu_seq
+    LDA #<bar_tbl : LDX #>bar_tbl : LDY #bar_tbl_len : JMP do_seq
 
 .bar_tbl
     EQUB 5
@@ -1302,6 +1310,16 @@ ORG &0E00
     EQUB 25,85,<1216,>1216,52,0
 bar_tbl_len = 28
 
+; ----------------------------------------------------------------------------
+; do_seq - A=table lo, X=table hi, Y=length; point zp_ptr0 at the table and
+;   emit it via vdu_seq. Factors the pointer setup every vdu_seq caller shared,
+;   reclaiming the bytes the moved sea-current base calc needs.
+; ----------------------------------------------------------------------------
+.do_seq
+    STA zp_ptr0
+    STX zp_ptr0+1
+    TYA
+    ; fall through into vdu_seq (A = length)
 ; ----------------------------------------------------------------------------
 ; vdu_seq - send A bytes from the table at zp_ptr0 to OSWRCH.
 ;   Counters live in memory, not X/Y: this engine does not assume the OS
@@ -1329,20 +1347,14 @@ bar_tbl_len = 28
     LDA var_air+1 : STA bte_tbl+7  : STA bte_tbl+13
     LDA var_air   : CLC : ADC #8 : STA bte_tbl+18 : STA bte_tbl+24
     LDA var_air+1 : ADC #0       : STA bte_tbl+19 : STA bte_tbl+25
-    LDA #<bte_tbl : STA zp_ptr0
-    LDA #>bte_tbl : STA zp_ptr0+1
-    LDA #28
-    JMP vdu_seq
+    LDA #<bte_tbl : LDX #>bte_tbl : LDY #28 : JMP do_seq
 
 ; ----------------------------------------------------------------------------
 ; bar_colour - A = physical colour for logical 14 (VDU19,14,A,0,0,0).
 ; ----------------------------------------------------------------------------
 .bar_colour
     STA bc_tbl+2
-    LDA #<bc_tbl : STA zp_ptr0
-    LDA #>bc_tbl : STA zp_ptr0+1
-    LDA #6
-    JMP vdu_seq
+    LDA #<bc_tbl : LDX #>bc_tbl : LDY #6 : JMP do_seq
 .bc_tbl EQUB 19,14,0,0,0,0
 
 ; ============================================================================
@@ -1374,10 +1386,7 @@ bar_tbl_len = 28
     RTS
 
 .print_score
-    LDA #<ps_tbl : STA zp_ptr0
-    LDA #>ps_tbl : STA zp_ptr0+1
-    LDA #6
-    JSR vdu_seq
+    LDA #<ps_tbl : LDX #>ps_tbl : LDY #6 : JSR do_seq
     LDX #2
 .ps_loop
     LDA var_score,X
@@ -1394,10 +1403,7 @@ bar_tbl_len = 28
 ; PROCB. The D$ prefix matters twice over: it selects background logical 15
 ; (black) for the whole HUD row, and it prints the "Air" label.
 .print_counts
-    LDA #<pc_tbl : STA zp_ptr0
-    LDA #>pc_tbl : STA zp_ptr0+1
-    LDA #pc_tbl_len
-    JSR vdu_seq
+    LDA #<pc_tbl : LDX #>pc_tbl : LDY #pc_tbl_len : JSR do_seq
     LDA var_item_sprite : JSR oswrch
     LDA #32 : JSR oswrch
     LDA var_items_left : CLC : ADC #48 : JSR oswrch
@@ -1405,10 +1411,7 @@ bar_tbl_len = 28
     LDA var_level : CMP #7 : BCS pc_fish
     AND #1 : BEQ pc_tail            ; A still = var_level from the CMP above
 .pc_fish
-    LDA #<pc_ftbl : STA zp_ptr0
-    LDA #>pc_ftbl : STA zp_ptr0+1
-    LDA #pc_ftbl_len
-    JSR vdu_seq
+    LDA #<pc_ftbl : LDX #>pc_ftbl : LDY #pc_ftbl_len : JSR do_seq
     LDA var_fish_left : CLC : ADC #48 : JSR oswrch
 .pc_tail
     LDA #17 : JSR oswrch : LDA #128 : JSR oswrch   ; background back to 0
