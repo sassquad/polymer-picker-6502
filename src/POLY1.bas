@@ -1,5 +1,5 @@
 REM Polymer Picker loader
-REM by Stephen Scott (c) 2022
+REM by Stephen Scott (c) 2022-2026
 REM Thanks to ChrisB, jms2, lurkio, TobyLobster and fizgog
 REM Hi to the Stardot community
 HIMEM=&2B00:PROCinit:PROCchars:PROCenv

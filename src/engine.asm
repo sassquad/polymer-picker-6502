@@ -153,7 +153,7 @@ ORG &0E00
     EQUB 10 : EQUS "OHHH NO!!!"
     EQUB 10 : EQUS "GAME  OVER"
     EQUB 28 : EQUS "Polymer Pickers Hall of Fame"
-    EQUB 23 : EQUS "Please enter your name:"
+    EQUB 23 : EQUS "Please enter your name "
     EQUB 22 : EQUS "Press SPACEBAR to play"
 
 .engine_start
