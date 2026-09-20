@@ -40,9 +40,9 @@
 ;     for the CLD that turns decimal mode back off.
 ;
 ; The &0B00 "debug page" doubles as the BASIC interface and as tuning/telemetry
-; knobs (dbg_features gates each subsystem, dbg_forcekeys can puppet the diver
-; for testing, dbg_divider/sharkwin/hurtcd/tankdepth tune the feel) - all
-; pokeable live over the b2 emulator's HTTP API. See memorymap.asm.
+; knobs (dbg_features gates each subsystem, dbg_divider/sharkwin/hurtcd/tankdepth
+; tune the feel) - all pokeable live over the b2 emulator's HTTP API. See
+; memorymap.asm.
 ;
 ; ---- M5 ABI (BASIC <-> engine) ---------------------------------------------
 ; BASIC paints the scenery for the level, then sets and CALLs:
@@ -66,7 +66,7 @@
 ;   * seeded 16-bit PRNG replacing BASIC's RND
 ;
 ; Debug interface (see memorymap.asm): dbg_features gates each subsystem,
-; dbg_forcekeys puppets the diver - both pokeable live over b2 Debug HTTP.
+; pokeable live over b2 Debug HTTP.
 ;
 ; Timing model (confirmed from POLY3): PROCv/enemies/PROCl run every loop
 ; iteration; only air (PROCD) is throttled by M% - that gate arrives at M4.
@@ -95,10 +95,10 @@ INCLUDE "src/gfx.asm"
 .gfx_end
 SAVE "GFX", gfx_start, gfx_end
 
-SPACE_INKEY     = &9D       ; OSBYTE &81 X-operand for negative-INKEY SPACE (-99)
-SAFETY_HI       = 48        ; exit after frame_count high byte reaches this (~60 s)
 BLEED_CHAR      = 239       ; PROCu blood particle UDG
 ITEM_COL        = 7         ; items drawn GCOL3 (EOR) white
+ITEM_XMIN       = 8         ; M8: sea-current tank walls, in arr_item_x units
+ITEM_XMAX       = 140       ;     (item is drawn at x*8 graphics; 140 -> 1120)
 TANK_CHAR       = 237       ; spare oxygen tank UDG
 HEART_CHAR      = 238
 CRIT_Y          = 46        ; plotshape Y putting the critter on char row 26,
@@ -153,7 +153,7 @@ ORG &0E00
     EQUB 10 : EQUS "OHHH NO!!!"
     EQUB 10 : EQUS "GAME  OVER"
     EQUB 28 : EQUS "Polymer Pickers Hall of Fame"
-    EQUB 23 : EQUS "Please enter your name:"
+    EQUB 23 : EQUS "Please enter your name "
     EQUB 22 : EQUS "Press SPACEBAR to play"
 
 .engine_start
@@ -171,43 +171,17 @@ ORG &0E00
     LDA #&12 : STA var_rng+1
 .seed_ok
 
-    ; --- feature mask: 0 (cold RAM) means everything on ---
-    LDA dbg_features
-    BNE feat_ok
-    LDA #&FF : STA dbg_features
-.feat_ok
-    ; --- pacing divider: sanitize cold RAM to default 4 (=12.5 ticks/s) ---
-    LDA dbg_divider
-    BEQ div_default
-    CMP #11
-    BCC div_ok
-.div_default
-    LDA #4 : STA dbg_divider
-.div_ok
-    LDA #0 : STA dbg_divcnt
-    ; --- shark front-on half-window: clamp cold RAM to the default 4 ---
-    LDA dbg_sharkwin
-    BEQ swin_default
-    CMP #13
-    BCC swin_ok
-.swin_default
-    LDA #4 : STA dbg_sharkwin
-.swin_ok
-    ; --- 'ouch' feedback cooldown: clamp cold RAM to the default 10 ticks ---
-    LDA dbg_hurtcd
-    BEQ hcd_default
-    CMP #61
-    BCC hcd_ok
-.hcd_default
-    LDA #10 : STA dbg_hurtcd
-.hcd_ok
-    LDA #0 : STA var_hurtcd
+    ; The cold-RAM clamps for dbg_features/divider/sharkwin/hurtcd were reclaimed
+    ; for M8. POLY3 pokes all four at boot (and a NEW GAME always routes through
+    ; those pokes), and none of them indexes memory - they are masks/thresholds/
+    ; counters - so an unsanitized value only degrades feel, never crashes.
+    ; divider==0 is still handled at runtime (main_loop) as "advance every frame".
+    LDA #0 : STA dbg_divcnt : STA var_hurtcd
 
     ; --- initial game state (normally set by PROCo) ---
     LDA #32  : STA var_dx           ; diver start X
     LDA #214 : STA var_dy           ; diver start Y (near the surface)
-    LDA #1   : STA var_facing       ; facing right (RDIVER)
-    LDA #1   : STA var_speed        ; g% = 1
+    LDA #1   : STA var_facing : STA var_speed   ; facing right (RDIVER); g% = 1
     LDA dbg_level                   ; l% comes from BASIC (0 -> default 1)
     BNE lvl_ok
     LDA #1 : STA dbg_level
@@ -217,16 +191,14 @@ ORG &0E00
     ; (POLY3 line 1: l%>6 -> fish AND shark, l% odd -> fish, l% even -> shark)
     LDA dbg_features : STA var_active
     LDA var_level : CMP #7 : BCS lr_done
-    LDA var_level : AND #1 : BEQ lr_even
+    AND #1 : BEQ lr_even            ; A still = var_level from the CMP above
     LDA var_active : AND #&FB : STA var_active   ; odd level: no shark
     JMP lr_done
 .lr_even
     LDA var_active : AND #&FD : STA var_active   ; even level: no fish
 .lr_done
-    LDA #8   : STA var_items_left   ; P%
-    LDA #8   : STA var_fish_left    ; L%
-    LDA #0   : STA var_hurt
-    LDA #0   : STA var_fish_cursor  ; E%
+    LDA #8   : STA var_items_left : STA var_fish_left   ; P%, L%
+    LDA #0   : STA var_hurt : STA var_fish_cursor       ; E%
     LDA #3   : STA var_jelly_cursor ; e (first tick wraps to 0)
     ; pl% = 248 + (l%-1) MOD 4
     LDA var_level : SEC : SBC #1
@@ -234,7 +206,8 @@ ORG &0E00
     CMP #4 : BCC pl_done
     SBC #4 : JMP pl_mod4
 .pl_done
-    CLC : ADC #248 : STA var_item_sprite
+    CLC : ADC #248 : STA var_item_sprite      ; UDG char (HUD count icon)
+    SEC : SBC #236 : STA item_shape           ; plotshape index = 12 + (l-1)MOD4
     LDA #<100 : STA var_crit_x      ; critter (crab/shrimp) start X = 100
     LDA #>100 : STA var_crit_x+1
     LDA #10  : STA var_crit_sprite  ; cr%: shape 10 crab (odd levels)
@@ -286,6 +259,7 @@ ORG &0E00
     LDA var_active : AND #1 : BEQ no_items_init
     JSR items_init
 .no_items_init
+    JSR current_init                ; M8: seed the sea current for this level
     LDA var_active : AND #2 : BEQ no_fish_init
     JSR fish_init
 .no_fish_init
@@ -329,7 +303,7 @@ ORG &0E00
     LDA #19                 ; frame lock: wait for vertical sync (50 Hz)
     JSR osbyte
 
-    INC frame_count         ; safety limit
+    INC frame_count         ; liveness counter (HTTP-peekable), 16-bit
     BNE fc_nohi
     INC frame_count+1
 .fc_nohi
@@ -341,11 +315,11 @@ ORG &0E00
 
     ; pacing: advance game state only every dbg_divider-th frame
     INC dbg_divcnt
-    ; The sea-bed critter is drawn through the OS graphics-cursor character
-    ; path, which is the single most expensive thing in the frame - on its own
-    ; it pushed the game tick just past one vsync. The loop has idle frames
-    ; between ticks, so it runs on the frame AFTER a tick instead of with it.
-    ; Same update rate, same motion, but the work is spread over two frames.
+    ; The sea-bed critter is drawn with plotshape (M6 moved it off the far
+    ; costlier OS graphics-cursor path). It still runs on the frame AFTER a tick
+    ; rather than with it, so its draw shares the work across the loop's idle
+    ; frames instead of stacking onto the tick frame. Same update rate, same
+    ; motion; the frame just stays comfortably inside one vsync.
     LDA dbg_divcnt
     CMP #1
     BNE ml_nocrit
@@ -369,6 +343,7 @@ ORG &0E00
 
     JSR diver_update
     JSR air_check                   ; PROCD: time-gated air drain + tank spawn
+    JSR current_move                ; M8: drift the junk items with the current
     LDA var_active : AND #2 : BEQ ml_nofish
     JSR fish_tick
 .ml_nofish
@@ -413,13 +388,13 @@ ORG &0E00
     ; left (key 0): if D% > 1 then D% -= g%, face left
     LDA #0 : JSR test_key : BNE du_noleft
     LDA var_dx : CMP #2 : BCC du_noleft
-    LDA var_dx : SEC : SBC var_speed : STA var_dx
+    SEC : SBC var_speed : STA var_dx        ; A still = var_dx from the CMP
     LDA #0 : STA var_facing
 .du_noleft
     ; right (key 1): if D% < 67 then D% += g%, face right
     LDA #1 : JSR test_key : BNE du_noright
     LDA var_dx : CMP #67 : BCS du_noright
-    LDA var_dx : CLC : ADC var_speed : STA var_dx
+    CLC : ADC var_speed : STA var_dx        ; A still = var_dx from the CMP
     LDA #1 : STA var_facing
 .du_noright
     ; up (key 2): if e% < 212 then e% += g%*2
@@ -448,6 +423,9 @@ ORG &0E00
     LDA #1   : STA var_speed
     LDA #200 : STA var_interval
 .du_speeddone
+
+    ; (M8 diver drift deferred: the current moves the junk items only for now;
+    ;  nudging the diver too is a later addition once code space allows.)
 
     ; redraw only if the diver actually changed
     LDA var_dx     : CMP var_dx_old     : BNE du_redraw
@@ -539,20 +517,86 @@ ORG &0E00
 ;   Preserves Y.
 ; ----------------------------------------------------------------------------
 .item_draw
+    ; M8 phase 2: EOR-plot the item with plotshape (was the slow OS graphics-
+    ; cursor char path, which flickered once items moved). The item coordinate
+    ; maps straight onto plotshape's: X = arr_item_x/2 (arr_item_x is in the
+    ; check-box units the old vdu_char drew at *8; plotshape wants *(8>>4)=/2),
+    ; and Y = arr_item_y (plotshape Y already matches the collision box). This
+    ; also aligns the sprite exactly with the collision box in check.
     STY item_saveY
-    LDA arr_item_x,Y : STA zp_ptr1
-    LDA #0 : STA zp_ptr1+1
-    ASL zp_ptr1 : ROL zp_ptr1+1
-    ASL zp_ptr1 : ROL zp_ptr1+1
-    ASL zp_ptr1 : ROL zp_ptr1+1            ; x16 = G% * 8
-    LDA arr_item_y,Y : STA zp_ptr2
-    LDA #0 : STA zp_ptr2+1
-    ASL zp_ptr2 : ROL zp_ptr2+1
-    ASL zp_ptr2 : ROL zp_ptr2+1            ; y16 = J% * 4
-    LDA #ITEM_COL : STA var_tmpD
-    LDA var_item_sprite
-    JSR vdu_char
+    LDA arr_item_x,Y : LSR A : TAX          ; plotshape X = arr_item_x / 2
+    LDA arr_item_y,Y : TAY                  ; plotshape Y = arr_item_y
+    LDA item_shape                          ; this level's junk sprite (12-15)
+    JSR plotshape                           ; EOR: one call draws, a second erases
     LDY item_saveY
+    RTS
+
+
+; ============================================================================
+; M8 sea current. current_init seeds the drift for this level; current_move
+;   runs once per game tick to step and bounce the junk items. Diver drift is
+;   handled in diver_update. Only items that actually step this tick are
+;   redrawn, so the (expensive) vdu_char cost stays proportional to motion.
+; ============================================================================
+.current_init
+    ; Per-level drift base -> dbg_current (moved here from POLY3's PROCo to give
+    ; BASIC back the heap it cost). Still water on levels 1-2; from level 3 the
+    ; base is (level-2)*16, and (level-2) is CLAMPED to 9 first so *16 tops out
+    ; at 144 and can never overflow (same guard as shark_init). Each item then
+    ; takes its OWN speed - base/2 + rnd(base) - so the rubbish drifts at
+    ; differing, naturalistic rates, not in lock-step.
+    LDA #0 : STA dbg_current
+    LDA var_level : SEC : SBC #2              ; level-2  (level 1 -> borrow)
+    BCC ci_base_done                          ; level 1: still water
+    CMP #10 : BCC ci_noclamp                  ; clamp (level-2) to 9 -> *16 <= 144
+    LDA #9
+.ci_noclamp
+    ASL A : ASL A : ASL A : ASL A             ; (level-2 clamped) * 16
+    STA dbg_current                           ; level 2 -> 0 (still), 3+ -> 16..144
+.ci_base_done
+    LDA dbg_current : LSR A : STA var_tmpB    ; base/2, computed once
+    LDY #7
+.ci_loop
+    LDA dbg_current : BEQ ci_still            ; still water -> speed 0 (no rnd(0))
+    JSR rnd_mod                               ; A=base -> rnd 0..base-1 (Y kept)
+    CLC : ADC var_tmpB                        ; base/2 + rnd(base)
+    JMP ci_setspeed
+.ci_still
+    LDA #0
+.ci_setspeed
+    STA arr_item_speed,Y                      ; this item's per-tick drift speed
+    LDA #1 : STA arr_item_dir,Y               ; +1 = drift right
+    TYA
+    ASL A : ASL A : ASL A : ASL A : ASL A     ; Y*32 accumulator-phase stagger, so
+    STA arr_item_frac,Y                       ; items don't all step on one tick
+    DEY : BPL ci_loop
+    RTS
+
+.current_move
+    LDA dbg_current
+    BNE cm_on
+    RTS                                     ; still water: nothing to do
+.cm_on
+    LDY #7
+.cm_loop
+    LDA arr_item_y,Y
+    BEQ cm_next                             ; collected item -> skip
+    LDA arr_item_frac,Y : CLC : ADC arr_item_speed,Y : STA arr_item_frac,Y
+    BCC cm_next                             ; no whole-unit step this tick
+    ; tentative new X = old + dir (test it BEFORE moving, so a wall bounce
+    ; costs no erase/redraw - the item just reverses and holds this tick)
+    LDA arr_item_x,Y : CLC : ADC arr_item_dir,Y
+    CMP #ITEM_XMIN     : BCC cm_bounce
+    CMP #ITEM_XMAX+1   : BCS cm_bounce
+    PHA                                     ; in bounds: erase old, commit, draw
+    JSR item_draw                           ; EOR-erase at the old X (keeps Y)
+    PLA : STA arr_item_x,Y
+    JSR item_draw                           ; redraw at the new X (keeps Y)
+    JMP cm_next
+.cm_bounce
+    LDA #0 : SEC : SBC arr_item_dir,Y : STA arr_item_dir,Y          ; reverse dir
+.cm_next
+    DEY : BPL cm_loop
     RTS
 
 
@@ -725,13 +769,21 @@ ORG &0E00
     BCC si_noflip                           ; dx+8 < SX -> keep facing left
     LDA #5 : STA var_shk_dir
 .si_noflip
+    ; Start height rises toward the surface with the level, then holds. The
+    ; level is clamped to 10 BEFORE the multiply: the old code did level*10 on
+    ; the raw level and only capped AFTER, so from level 20 the byte overflowed
+    ; (200+60 = 260 -> 4), the cap saw 4 < 161 and passed it, and the shark
+    ; spawned at the very bottom - its tall sprite then wrapped round into the
+    ; sky. (A form of this bit the BASIC original too.) Clamping first keeps
+    ; level*10+60 in 70..160, so it can never wrap. Levels 1-19 are unchanged.
     LDA var_level
-    ASL A : ASL A : ADC var_level           ; l*5 (carry clear: l small)
-    ASL A                                   ; l*10
-    CLC : ADC #60
-    CMP #161 : BCC si_ycap
-    LDA #160
-.si_ycap
+    CMP #10 : BCC si_lvl                     ; level < 10: use as-is
+    LDA #10                                  ; level >= 10: hold at the top height
+.si_lvl
+    STA var_tmpA
+    ASL A : ASL A : ADC var_tmpA            ; level*5 (carry clear: level <= 10)
+    ASL A                                    ; level*10  (<= 100)
+    CLC : ADC #60                            ; 70 .. 160, no overflow
     STA var_shk_y
     LDA #1 : STA var_shk_vspeed             ; V% = 1 (PROCo)
     LDX var_shk_x
@@ -1098,21 +1150,12 @@ ORG &0E00
 
 ; ============================================================================
 ; test_key - A = direction index (0..4). Returns Z=1 if that key is held.
-;   dbg_forcekeys bit7 set: forced mode - low 3 bits name the pressed index.
-;   Otherwise OSBYTE &81 negative INKEY via key_table.
+;   OSBYTE &81 negative INKEY via key_table.
+;   (M9 will reintroduce an alternate input branch here for the joystick;
+;    dbg_forcekeys &0B01 stays reserved for that.)
 ; ============================================================================
 .test_key
     TAY
-    LDA dbg_forcekeys
-    BPL tk_real
-    AND tk_bits,Y                           ; bits 0-4 = pressed mask per index
-    BEQ tk_notpressed
-    LDX #&FF : CPX #&FF : RTS               ; forced: pressed (Z=1)
-.tk_notpressed
-    LDX #0 : CPX #&FF : RTS                 ; forced: not pressed (Z=0)
-.tk_bits
-    EQUB 1,2,4,8,16
-.tk_real
     LDA key_table,Y
     EOR #&FF
     TAX
@@ -1256,10 +1299,7 @@ ORG &0E00
 ; bar_full - the air bar rectangle x 920-1216, y 40-52 in logical colour 14.
 ; ----------------------------------------------------------------------------
 .bar_full
-    LDA #<bar_tbl : STA zp_ptr0
-    LDA #>bar_tbl : STA zp_ptr0+1
-    LDA #bar_tbl_len
-    JMP vdu_seq
+    LDA #<bar_tbl : LDX #>bar_tbl : LDY #bar_tbl_len : JMP do_seq
 
 .bar_tbl
     EQUB 5
@@ -1270,6 +1310,16 @@ ORG &0E00
     EQUB 25,85,<1216,>1216,52,0
 bar_tbl_len = 28
 
+; ----------------------------------------------------------------------------
+; do_seq - A=table lo, X=table hi, Y=length; point zp_ptr0 at the table and
+;   emit it via vdu_seq. Factors the pointer setup every vdu_seq caller shared,
+;   reclaiming the bytes the moved sea-current base calc needs.
+; ----------------------------------------------------------------------------
+.do_seq
+    STA zp_ptr0
+    STX zp_ptr0+1
+    TYA
+    ; fall through into vdu_seq (A = length)
 ; ----------------------------------------------------------------------------
 ; vdu_seq - send A bytes from the table at zp_ptr0 to OSWRCH.
 ;   Counters live in memory, not X/Y: this engine does not assume the OS
@@ -1297,20 +1347,14 @@ bar_tbl_len = 28
     LDA var_air+1 : STA bte_tbl+7  : STA bte_tbl+13
     LDA var_air   : CLC : ADC #8 : STA bte_tbl+18 : STA bte_tbl+24
     LDA var_air+1 : ADC #0       : STA bte_tbl+19 : STA bte_tbl+25
-    LDA #<bte_tbl : STA zp_ptr0
-    LDA #>bte_tbl : STA zp_ptr0+1
-    LDA #28
-    JMP vdu_seq
+    LDA #<bte_tbl : LDX #>bte_tbl : LDY #28 : JMP do_seq
 
 ; ----------------------------------------------------------------------------
 ; bar_colour - A = physical colour for logical 14 (VDU19,14,A,0,0,0).
 ; ----------------------------------------------------------------------------
 .bar_colour
     STA bc_tbl+2
-    LDA #<bc_tbl : STA zp_ptr0
-    LDA #>bc_tbl : STA zp_ptr0+1
-    LDA #6
-    JMP vdu_seq
+    LDA #<bc_tbl : LDX #>bc_tbl : LDY #6 : JMP do_seq
 .bc_tbl EQUB 19,14,0,0,0,0
 
 ; ============================================================================
@@ -1342,10 +1386,7 @@ bar_tbl_len = 28
     RTS
 
 .print_score
-    LDA #<ps_tbl : STA zp_ptr0
-    LDA #>ps_tbl : STA zp_ptr0+1
-    LDA #6
-    JSR vdu_seq
+    LDA #<ps_tbl : LDX #>ps_tbl : LDY #6 : JSR do_seq
     LDX #2
 .ps_loop
     LDA var_score,X
@@ -1362,21 +1403,15 @@ bar_tbl_len = 28
 ; PROCB. The D$ prefix matters twice over: it selects background logical 15
 ; (black) for the whole HUD row, and it prints the "Air" label.
 .print_counts
-    LDA #<pc_tbl : STA zp_ptr0
-    LDA #>pc_tbl : STA zp_ptr0+1
-    LDA #pc_tbl_len
-    JSR vdu_seq
+    LDA #<pc_tbl : LDX #>pc_tbl : LDY #pc_tbl_len : JSR do_seq
     LDA var_item_sprite : JSR oswrch
     LDA #32 : JSR oswrch
     LDA var_items_left : CLC : ADC #48 : JSR oswrch
     ; fish counter only when fish exist this level: l% odd, or l% > 6
     LDA var_level : CMP #7 : BCS pc_fish
-    LDA var_level : AND #1 : BEQ pc_tail
+    AND #1 : BEQ pc_tail            ; A still = var_level from the CMP above
 .pc_fish
-    LDA #<pc_ftbl : STA zp_ptr0
-    LDA #>pc_ftbl : STA zp_ptr0+1
-    LDA #pc_ftbl_len
-    JSR vdu_seq
+    LDA #<pc_ftbl : LDX #>pc_ftbl : LDY #pc_ftbl_len : JSR do_seq
     LDA var_fish_left : CLC : ADC #48 : JSR oswrch
 .pc_tail
     LDA #17 : JSR oswrch : LDA #128 : JSR oswrch   ; background back to 0
@@ -1425,8 +1460,7 @@ pc_ftbl_len = 9
     LDA var_active : AND #2 : BNE lc_mstart
     JMP lc_air
 .lc_mstart
-    LDA #0 : STA lc_b
-    LDA #0 : STA lc_i
+    LDA #0 : STA lc_b : STA lc_i
 .lc_mloop
     LDX lc_i
     LDA arr_fish_state,X : CMP #2 : BNE lc_malive
