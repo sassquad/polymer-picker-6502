@@ -1,15 +1,19 @@
 # Polymer Picker (BBC Micro, machine-code version)
 A version of the Polymer Picker game for the BBC Micro, with the game loop written in 6502 machine code.
 
-[**Play version 2.01 online**](https://bbc.xania.org/?disc=https://www.sassquad.net/downloads/polymer-picker/polymer-picker-fuller-assembly-v2-01.ssd&autoboot) or [watch a playthrough video](https://youtu.be/hrgzWWyr84Y).
+*Disclaimer: this new edition was created with the assistance of Claude.ai. The pre-AI version of the game remains available to play however, links are provided below*
+
+- [**Play version 2.01 online**](https://bbc.xania.org/?disc=https://www.sassquad.net/downloads/polymer-picker/polymer-picker-fuller-assembly.ssd&autoboot)
+- [**Play version 1.12 online**](https://bbc.xania.org/?disc=https://www.sassquad.net/downloads/polymer-picker/polymer-picker-assembly.ssd&autoboot)
+- or [watch a playthrough video of the pre-AI version](https://youtu.be/hrgzWWyr84Y).
 
 ## About the game
 
-<img src="polymer-picker-day.png" alt="Image of Polymer Picker" width="450" />
+![Image of Polymer Picker level](polymer-picker-day.png "One of the playing screens from Polymer Picker")
 
-Your local coastline has become polluted with discarded plastic, which is harming the aquatic wildlife. Dive in, and collect the rubbish, before the fish consume it and die.
+Your local coastline has become polluted with discarded plastic, which is harming the aquatic wildlife. Dive in and collect the rubbish, before the fish consume it and die.
 
-Each level contains 8 items to collect. You then proceed to the next level. The fish are initially harmless, but later levels require you to avoid the fish if you can, or they may injure you. The jellyfish are a constant menace, their sting will hurt you. Then of course, there's the sharks to contend with.
+Each level contains 8 items to collect. You then proceed to the next level. The fish are initially harmless, but later levels require you to avoid the fish if you can, or they may injure you. The jellyfish are a constant menace, their sting will hurt you. Then of course, there's the sharks to contend with. And sea currents.
 
 As you progress, you have the ability to swim faster. This will consume more oxygen, however. When your airtank reaches about 50%, a spare tank will appear underneath your boat. Grab it to replenish your air. 
 
@@ -17,25 +21,19 @@ Points are earned for each item of plastic collected. At the end of a level, a b
 
 If you run out of air, or all the fish die, then it's game over.
 
-## Play online
-
-The current version (2.01, the machine-code edition) can be played online. You'll need a desktop/laptop computer or a tablet with a keyboard to play this.
-
-[**Play version 2.01 online**](https://bbc.xania.org/?disc=https://www.sassquad.net/downloads/polymer-picker/polymer-picker-fuller-assembly-v2-01.ssd&autoboot)
-
-The previous BASIC edition remains available too: [play the earlier version](https://bbc.godbolt.org/?disc=https://www.sassquad.net/downloads/polymer-picker/polymer-picker-assembly.ssd&autoboot).
-
-## Watch a playthrough video of the game
-
-[https://youtu.be/andCxDNpfJA](https://youtu.be/hrgzWWyr84Y)
-
 ## How did this game come about?
 
-The game was started in September 2021 and initially released in December 2022. A new edition was released in September 2023 to include jellyfish as an added hazard, along with some other tweaks. Version 2.00 followed in September 2026, and is the biggest change yet - the per-frame game loop was rewritten in 6502 machine code, replacing the BASIC that used to drive it, and the spare air tank now has to be earned rather than collected on the spot. Version 2.01 added a sea current: from level 3 onwards the floating rubbish drifts at varying speeds and bounces around the bay, getting rougher on later levels. It also fixed a long-standing bug where, on very high levels, the shark could spawn off the bottom of the screen and wrap around into the sky. Previous versions can be downloaded from the [game's dedicated Stardot thread](https://stardot.org.uk/forums/viewtopic.php?f=53&t=23615).
+I created a couple of games for the BBC Micro in the early to mid 1990s. After a period of many years, the Covid pandemic gave me a lot of additional time to look back at these games, and remaster them. From this, I felt I had the confidence to create something new. When I became aware of initiatives such as The Ocean Cleanup, an idea began to take shape. I began proper development of the game in September 2021. After about 16 months, the game was released in December 2022. September 2023 brought another release, this time including the jellyfish as a hazard. I had pretty much exhausted further development, as the game's combination of Basic and assembler maxxed out the available memory.
 
-<img src="polymer-picker-eve.png" alt="Image of Polymer Picker" width="450" />
+Fast forward to 2026. In the intervening years, I became increasingly aware of AI coding tools. Having used Claude.ai for tasks outside of programming, I tasked it with the aim of converting Polymer Picker to use more assembly language. I did this in the hope of enhancing the collision detection and overall playability of the game, and perhaps allowing some room for new features.
 
-<img src="polymer-picker-night.png" alt="Image of Polymer Picker" width="450" />
+This new version was released in September 2026, with a further feature added - sea currents. From level 3 onwards, the floating rubbish drifts at varying speeds, getting rougher on later levels. I very much doubt new versions will be released, as I have again run out of memory to include them. I am certain the code can be improved further, but I am otherwise happy with how the game plays.
+
+Previous versions can be downloaded from the [game's dedicated Stardot thread](https://stardot.org.uk/forums/viewtopic.php?f=53&t=23615).
+
+![Image of Polymer Picker level](polymer-picker-eve.png "Playing one of the 'evening' levels on Polymer Picker")
+
+![Image of Polymer Picker level](polymer-picker-night.png "The 'nighttime' level from Polymer Picker")
 
 ## How to build from source
 
@@ -45,19 +43,21 @@ Although the disc image is included here, there are files included to help you b
 
 On more recent versions of Mac OS, Beebasm must be rebuilt from source, in order to run in the 64-bit environment. 
 
-This repo includes the build process employed on my Apple iMac, which not only includes a build of BeebAsm, but the following tools/software:
+This repo includes the build process employed on my Apple Mac Studio, which not only includes a build of BeebAsm, but the following tools/software:
 
 * [b2 emulator](https://github.com/tom-seddon/b2)
 * [Visual Studio Code](https://github.com/microsoft/vscode) (using the [Beeb VSC extension](https://github.com/simondotm/beeb-vsc), which offers some BASIC syntax highlighting)
-* [basictool](https://github.com/ZornsLemma/basictool) - a tool I've used to compress the code to fit into memory. Recent versions are harder to read as a result. I'll try and put an uncompressed version into the repo in the future. The process involved is manual - automating this step, results in the code not working, so some further changes are required in the future to make this build process work without issue.
+* [basictool](https://github.com/ZornsLemma/basictool) - a tool originally used to help compress the code prior to v2.01 to fit into memory. These versions are harder to read as a result.
 
 VS Code's Tasks feature is employed to good effect here, by allowing a 'build' and 'test' task, the former runs the shell script `build.sh` which kicks beebasm, containing the following script:
 
-`beebasm -i Polymer-Picker-6502.asm -do PP6502.ssd -opt 3 -title PP6502`
+```bash
+beebasm -i Polymer-Picker-6502.asm -do PP6502.ssd -opt 3 -title PP6502
+```
 
 The `Polymer-Picker-6502.asm` file consists of the following:
 
-```
+```bash
 PUTTEXT "src/BOOT.txt", "!BOOT",&FFFFFF,&FFFFFF
 PUTBASIC "src/POLYSCR.bas","POLYSCR"
 PUTFILE "src/PPBY.bin","PPBY",&FF1800,&FF1800
@@ -87,7 +87,7 @@ SAVE "SPRITES", sprites_start, sprites_end
 INCLUDE "src/engine.asm"
 ```
 
-The following attempts to paraphrase an approach in more efficient memory management of the game, and some nifty loading techniques, which improve the loading time, and playability of the game, as performed by Stardot forum member 'hexwab' - any errors or omissions are my fault.
+From here, I will attempt to paraphrase an approach in more efficient memory management of the game, and some nifty loading techniques, which improve the loading time, and playability of the game, as performed by Stardot forum member 'hexwab' - any errors or omissions are my fault.
 
 The above build file takes the files within the `src` folder, and outputs them in the correct format, prior to building the disc image. In a major change from the BASIC version, sprite files are present. The individual sprites are merged into a single sprite file, `SPRITES`, for more efficient loading. The other files are assembled close to each other in the disc image, also for more efficient loading.
 
@@ -134,7 +134,7 @@ within `Polymer-Picker-6502.asm`, ensures the bootfile is created with the corre
 
 The bootfile itself is fairly standard:
 
-```
+```bash
 *BASIC
 *FX21
 CLOSE#0:PAGE=&1100:CHAIN"POLYSCR"
