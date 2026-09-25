@@ -1,5 +1,7 @@
 # Polymer Picker — Next Features Plan (post-v2.00)
 
+_I have included this Claude authored document for full disclosure. As the game has occupied all available memory, I don't believe any more changes are forthcoming._
+
 This plan covers the four enhancements floated after the v2.00 machine-code
 conversion merged to `main`. It follows the same iterative,
 verify-then-playtest rhythm as [MACHINE-CODE-PLAN.md](MACHINE-CODE-PLAN.md), and
