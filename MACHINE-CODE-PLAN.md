@@ -1,5 +1,7 @@
 # Polymer Picker — Machine-Code Conversion Plan
 
+_Disclaimer: I have included this Claude authored document for full disclosure. This was the result of an iterative approach to analysing the source code, and asking Claude to provide a clear set of steps on how best to achieve the aim of producing a new edition of the game using assembly language._
+
 A plan for converting the per-frame game loop of Polymer Picker from BBC BASIC to
 6502 machine code, to increase speed.
 
